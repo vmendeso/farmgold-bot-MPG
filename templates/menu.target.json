@@ -1,0 +1,5 @@
+{
+  "template": "templates/menu.png",
+  "threshold": 0.9,
+  "scales": [1]
+}

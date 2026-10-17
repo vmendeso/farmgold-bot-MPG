@@ -1,0 +1,7 @@
+numpy>=1.26,<3
+opencv-python>=4.9,<5
+mss>=9,<11
+PyAutoGUI>=0.9.54,<1
+pytesseract>=0.3.13,<0.4
+Pillow>=10,<13
+pandas>=2.2,<3.1
