@@ -21,7 +21,14 @@
     "green_logs": false,
     "logs_linewise": true,
     "logs_line_psm": 7,
-    "logs_ocr_timeout": 6
+    "logs_ocr_timeout": 6,
+    "groq": {
+      "enabled": true,
+      "model": "qwen/qwen3.8-27b",
+      "timeout_seconds": 4.0,
+      "min_interval_seconds": 1.0,
+      "max_requests_per_hour": 60
+    }
   },
   "measurement": {
     "battles_per_stage": 5,

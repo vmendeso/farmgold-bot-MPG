@@ -421,7 +421,7 @@ class CollectorTests(unittest.TestCase):
         self.window.capture.side_effect = frames
         sequence = iter(snapshots)
 
-        def read(_vision, _image, _cfg, diagnostics=None):
+        def read(_vision, _image, _cfg, diagnostics=None, **kwargs):
             result = next(sequence)
             diagnostics.update(roi=[0, 0, 1, .3], line_count=5)
             if result is None:
@@ -444,7 +444,7 @@ class CollectorTests(unittest.TestCase):
         self.config["measurement"]["max_ocr_failures"] = 2
         self.navigator.current_stage.side_effect = [INITIAL, None, None]
 
-        def read(_vision, _image, _cfg, diagnostics=None):
+        def read(_vision, _image, _cfg, diagnostics=None, **kwargs):
             diagnostics.update(roi=[0, 0, 1, .3], line_count=1)
             return [row(1)]
 
@@ -465,7 +465,7 @@ class CollectorTests(unittest.TestCase):
         updated = [row(6), row(6), *baseline[:3]]
         sequence = iter([None, None, baseline, baseline, updated, updated])
 
-        def read(_vision, _image, _cfg, diagnostics=None):
+        def read(_vision, _image, _cfg, diagnostics=None, **kwargs):
             diagnostics.update(roi=[0, 0, 1, .3])
             return next(sequence)
 

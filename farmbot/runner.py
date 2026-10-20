@@ -46,9 +46,9 @@ def log_profit_drop(decision, reason):
              decision.reference.target.key, decision.reference.gold_per_minute, decision.difference)
 
 
-def read_results(vision, image, measurement: dict, diagnostics: dict | None = None):
+def read_results(vision, image, measurement: dict, diagnostics: dict | None = None, *, stop=None):
     """Read a complete log snapshot; optional diagnostics never contain OCR text."""
-    from .vision import VisionError
+    from .vision import Vision, VisionError
 
     diagnostics = {} if diagnostics is None else diagnostics
     diagnostics.clear()
@@ -88,11 +88,19 @@ def read_results(vision, image, measurement: dict, diagnostics: dict | None = No
         lines = vision.read_lines(image, roi=roi, mode="logs")
     except VisionError:
         diagnostics["cause"] = "ocr_error"
-        raise
+        lines = vision.remote_lines(image, roi, 'logs', stop=stop) if isinstance(vision, Vision) else None
+        if lines is None:
+            raise
+        diagnostics['provider'] = 'groq'
+        diagnostics.pop('cause', None)
     rows = [parse_log_entry(line.text, measurement.get("notification_patterns")) for line in lines]
     diagnostics["line_count"] = len(lines)
     # A partial read must not masquerade as a shift in the rolling log.
     if any(row is None for row in rows):
+        alternative = vision.remote_lines(image, roi, 'logs', local_lines=lines, stop=stop) if isinstance(vision, Vision) else None
+        if alternative is not None:
+            diagnostics.update(provider='groq', line_count=len(alternative))
+            return [parse_log_entry(line.text, measurement.get('notification_patterns')) for line in alternative]
         diagnostics.update(cause="rejected_rows", rejected_lines=[
             {"line": index, "reason": "empty_or_unconfirmed" if not line.text.strip() else "unrecognized_format"}
             for index, (line, row) in enumerate(zip(lines, rows), 1) if row is None
@@ -269,7 +277,10 @@ class Collector:
                     elif changed_stage is not None:
                         raise NavigationError("Fase mudou novamente antes da confirmação da derrota")
                     frame = self.window.capture()
-                    rows = read_results(self.vision, frame.image, cfg, diagnostics=diagnostics)
+                    rows = read_results(self.vision, frame.image, cfg, diagnostics=diagnostics, stop=self.stop)
+                    self.stop.check()
+                    if hasattr(self.window, 'assert_foreground'):
+                        self.window.assert_foreground()
                     if rows is None:
                         raise VisionError(result_read_failure(diagnostics))
                 except VisionError as exc:

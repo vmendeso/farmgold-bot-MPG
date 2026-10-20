@@ -358,7 +358,10 @@ class MapNavigator(Navigator):
         No observation from a prior call is reused when the label is unstable.
         """
         self.last_label_evidence = None
-        deadline = time.monotonic() + self.label_timeout
+        timeout = self.label_timeout
+        if isinstance(self.vision, Vision) and self.vision.remote_ocr.available:
+            timeout = max(timeout, 2 * (self.label_timeout + self.vision.remote_ocr.config['timeout_seconds']) + 1)
+        deadline = time.monotonic() + timeout
         hover_retry_logged = False
         while time.monotonic() < deadline:
             frame, menu = self._capture_menu()
@@ -387,7 +390,7 @@ class MapNavigator(Navigator):
                 return stage
             previous = stage
             self.stop.wait(min(self.label_poll_interval, max(0, deadline - time.monotonic())))
-        log.warning("Battlefield stage label did not stabilize within %.2fs", self.label_timeout)
+        log.warning("Battlefield stage label did not stabilize within %.2fs", timeout)
         return None
 
     def _parse_stage_lines(self, lines):
@@ -410,6 +413,7 @@ class MapNavigator(Navigator):
         roi = self._normalized_box(frame.image, self._box(
             frame.image, menu, self._offset("current_stage_offset", [-570, 21, 560, 31])))
         evidence = self.last_label_evidence = {"frame": frame, "roi": roi, "reads": [], "selected": None}
+        local_deadline = min(deadline, time.monotonic() + self.label_timeout) if deadline is not None else None
         votes = {}
         ambiguous = False
         for name, reader in (("primary", self.label_vision), ("scaled", self.label_fallback_vision),
@@ -420,9 +424,12 @@ class MapNavigator(Navigator):
             if deadline is not None and time.monotonic() >= deadline:
                 return None
             try:
-                lines = reader.read_lines(frame.image, roi=roi, mode="text", deadline=deadline)
+                lines = reader.read_lines(frame.image, roi=roi, mode="text", deadline=local_deadline)
             except VisionError as exc:
                 evidence["error"] = str(exc)
+                alternative = self._remote_stage(frame, roi, deadline, evidence) if not ambiguous else None
+                if alternative is not None:
+                    return alternative
                 raise
             stage, multiple = self._parse_stage_lines(lines)
             ambiguous |= multiple
@@ -433,14 +440,37 @@ class MapNavigator(Navigator):
                 votes[stage] = votes.get(stage, 0) + 1
         if deadline is not None and time.monotonic() >= deadline:
             return None
-        if ambiguous or not votes:
+        if ambiguous:
             return None
+        if not votes:
+            return self._remote_stage(frame, roi, deadline, evidence)
         highest = max(votes.values())
         winners = [stage for stage, count in votes.items() if count == highest]
         if highest < 2 or len(winners) != 1:
+            alternative = self._remote_stage(frame, roi, deadline, evidence)
+            if alternative in votes:
+                return alternative
+            evidence['selected'] = None
             return None
         evidence["selected"] = winners[0].key
         return winners[0]
+
+    def _remote_stage(self, frame, roi, deadline, evidence):
+        if not isinstance(self.vision, Vision):
+            return None
+        lines = self.vision.remote_lines(frame.image, roi, 'stage', stop=self.stop, deadline=deadline)
+        if lines is None:
+            return None
+        stage, ambiguous = self._parse_stage_lines(lines)
+        evidence['reads'].append({'variant': 'groq', 'stage': stage.key if stage else None,
+                                  'ambiguous': ambiguous, 'lines': [{'text': l.text, 'confidence': l.confidence} for l in lines]})
+        self.stop.check()
+        if self.window is not None:
+            self.window.assert_foreground()
+        if stage is not None and not ambiguous and (deadline is None or time.monotonic() < deadline):
+            evidence['selected'] = stage.key
+            return stage
+        return None
 
     def _ready(self, page: dict) -> None:
         deadline = time.monotonic() + self.timeout

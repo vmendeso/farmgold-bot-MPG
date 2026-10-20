@@ -98,6 +98,54 @@ class Vision:
         # Cache recognition only, never battle events. Identical visible rows
         # still produce separate OCRLine objects in their current positions.
         self._log_row_cache = OrderedDict()
+        from .groq_ocr import GroqOCR
+        self.remote_ocr = GroqOCR(config.get("groq"))
+
+    def remote_lines(self, image, roi, kind, *, local_lines=None, stop=None, deadline=None):
+        """Send only an explicitly bounded ROI, never an implicit full frame."""
+        if roi is None or not self.remote_ocr.config['enabled']:
+            return None
+        x, y, width, height = _roi_box(image, roi)
+        crop = image[y:y+height, x:x+width]
+        count = len(self._log_spans(crop)) if kind == 'logs' else None
+        text = self.remote_ocr.transcribe(crop, kind, expected_rows=count, stop=stop, deadline=deadline)
+        if text is None:
+            return None
+        if kind == 'logs':
+            from .results import parse_log_entry
+            parsed = [parse_log_entry(line) for line in text]
+            if any(row is None for row in parsed):
+                return None
+            if local_lines is not None:
+                if len(local_lines) != len(text):
+                    return None
+                for local, remote in zip(local_lines, parsed):
+                    known = parse_log_entry(local.text)
+                    if known is not None and known.fingerprint != remote.fingerprint:
+                        log.warning('Groq: divergência com linha local confirmada; captura rejeitada')
+                        return None
+        # Confidence here marks a transcription, not a model probability.
+        # Callers still require temporal confirmation before using the data.
+        return [OCRLine(line, 1.0, (x, y, width, height)) for line in text]
+
+    @staticmethod
+    def _log_spans(crop):
+        cv2, np = _dependencies()
+        gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY) if crop.ndim == 3 else crop
+        active = np.flatnonzero(np.count_nonzero(gray > 50, axis=1) >= 2)
+        spans = []
+        if active.size:
+            start = previous = int(active[0])
+            for value in active[1:]:
+                current = int(value)
+                if current - previous > 3:
+                    if previous - start >= 2:
+                        spans.append((start, previous + 1))
+                    start = current
+                previous = current
+            if previous - start >= 2:
+                spans.append((start, previous + 1))
+        return spans
 
     def validate_target(self, target: dict) -> None:
         """Preflight a configured target without capturing or touching the UI."""
@@ -232,19 +280,7 @@ class Vision:
         if not math.isfinite(timeout) or timeout <= 0:
             raise VisionError("ocr_timeout deve ser positivo e finito.")
         gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY) if crop.ndim == 3 else crop.copy()
-        active = np.flatnonzero(np.count_nonzero(gray > 50, axis=1) >= 2)
-        spans: list[tuple[int, int]] = []
-        if active.size:
-            start = previous = int(active[0])
-            for value in active[1:]:
-                current = int(value)
-                if current - previous > 3:
-                    if previous - start >= 2:
-                        spans.append((start, previous + 1))
-                    start = current
-                previous = current
-            if previous - start >= 2:
-                spans.append((start, previous + 1))
+        spans = self._log_spans(crop)
         if len(spans) > 32:
             raise VisionError("Mais de 32 linhas no ROI de logs; ajuste a calibracao.")
         deadline = min(deadline, time.monotonic() + timeout) if deadline is not None else time.monotonic() + timeout

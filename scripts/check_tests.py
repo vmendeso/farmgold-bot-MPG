@@ -6,6 +6,7 @@ No game window or desktop input is needed. Run with the project's interpreter:
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import sys
 import time
@@ -13,6 +14,7 @@ import unittest
 
 
 def main() -> int:
+    os.environ['FARMBOT_DISABLE_REMOTE_OCR'] = '1'  # Unit tests never spend API credits.
     root = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(root))
     suite = unittest.defaultTestLoader.discover(str(root / "tests"))
