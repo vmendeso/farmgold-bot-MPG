@@ -80,6 +80,31 @@ class SearchCycleTests(unittest.TestCase):
         self.assertEqual(self.cycle(), ["best"])
         self.windows[1].close.assert_called_once()
 
+    def test_real_capture_failure_defers_cycle_and_next_cycle_uses_new_window(self):
+        from mss.exception import ScreenShotError
+        from farmbot.desktop import WindowManager
+
+        with patch("farmbot.desktop._Win32") as api:
+            api.return_value.find.return_value = [17]
+            api.return_value.rect.return_value = Rect(0, 0, 30, 20)
+            api.return_value.process_id.return_value = 123
+            api.return_value.foreground.return_value = True
+            window = WindowManager({"exact_title": "Game"})
+        backend = window._capture = Mock()
+        backend.grab.side_effect = ScreenShotError("desktop unavailable")
+        self.window_factory.side_effect = [window, self.windows[1]]
+        self.search.side_effect = lambda current, *_args: current.capture()
+        with self.assertRaises(CycleDeferred) as caught:
+            self.cycle()
+        self.assertIsInstance(caught.exception.__cause__, WindowError)
+        backend.close.assert_called_once()
+        self.assertIsNone(window.last_frame)
+        self.navigators[0].select.assert_not_called()
+        self.save.assert_not_called()
+        self.search.side_effect = None
+        self.assertEqual(self.cycle(), ["best"])
+        self.windows[1].request_focus.assert_not_called()
+
     def test_background_game_defers_before_capture_hover_or_navigation(self):
         self.windows[0].assert_foreground.side_effect = InputSafetyError("background")
         with self.assertRaises(CycleDeferred):

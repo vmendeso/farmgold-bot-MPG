@@ -253,5 +253,102 @@ class EmergencyStopTests(unittest.TestCase):
             stop.wait(0)
 
 
+class CaptureSafetyTests(unittest.TestCase):
+    """Exercise the real capture boundary; only Win32 and MSS are simulated."""
+
+    def setUp(self):
+        import numpy as np
+        self.np = np
+        api_patch = patch("farmbot.desktop._Win32")
+        self.api = api_patch.start().return_value
+        self.addCleanup(api_patch.stop)
+        self.rect = Rect(-400, 50, 30, 20)
+        self.api.find.return_value = [17]
+        self.api.process_id.return_value = 123
+        self.api.rect.return_value = self.rect
+        self.api.foreground.return_value = True
+        self.window = WindowManager({"exact_title": "Game"})
+        self.backend = self.window._capture = Mock()
+        self.addCleanup(self.window.close)
+        self.pixels = np.full((20, 30, 4), (11, 22, 33, 255), dtype=np.uint8)
+        self.backend.grab.return_value = self.pixels
+        self.previous = self.window.last_frame = Frame(None, self.rect, 17, 1)
+
+    def test_success_uses_client_coordinates_and_copies_bgr_pixels(self):
+        frame = self.window.capture()
+        self.backend.grab.assert_called_once_with({"left": -400, "top": 50, "width": 30, "height": 20})
+        self.assertEqual((frame.rect, frame.hwnd), (self.rect, 17))
+        self.assertIs(self.window.last_frame, frame)
+        self.pixels[:] = 0
+        self.np.testing.assert_array_equal(frame.image[0, 0], [11, 22, 33])
+        self.assertEqual(frame.image.shape, (20, 30, 3))
+
+    def test_background_or_unavailable_window_prevents_capture(self):
+        for problem in ("focus", "minimized", "closed"):
+            with self.subTest(problem=problem):
+                self.api.foreground.return_value = problem != "focus"
+                self.api.rect.side_effect = WindowError(problem) if problem != "focus" else None
+                with self.assertRaises((WindowError, InputSafetyError)):
+                    self.window.capture()
+                self.backend.grab.assert_not_called()
+                self.assertIs(self.window.last_frame, self.previous)
+
+    def test_focus_loss_during_capture_discards_new_frame(self):
+        self.api.foreground.side_effect = [True, False]
+        with self.assertRaises(InputSafetyError):
+            self.window.capture()
+        self.backend.grab.assert_called_once()
+        self.assertIs(self.window.last_frame, self.previous)
+
+    def test_move_resize_or_process_change_during_capture_discards_new_frame(self):
+        for change in ("move", "resize", "process"):
+            with self.subTest(change=change):
+                self.api.process_id.return_value = 123
+                self.api.rect.return_value = self.rect
+
+                def grab(_region):
+                    if change == "process":
+                        self.api.process_id.return_value = 456
+                    else:
+                        self.api.rect.return_value = (Rect(-399, 50, 30, 20) if change == "move"
+                                                      else Rect(-400, 50, 31, 20))
+                    return self.pixels
+
+                self.backend.grab.side_effect = grab
+                with self.assertRaises((WindowError, InputSafetyError)):
+                    self.window.capture()
+                self.assertIs(self.window.last_frame, self.previous)
+
+    def test_mss_failure_is_recoverable_window_error_without_returning_old_frame(self):
+        from mss.exception import ScreenShotError
+        cause = ScreenShotError("screen capture unavailable")
+        self.backend.grab.side_effect = cause
+        with self.assertRaises(WindowError) as caught:
+            self.window.capture()
+        self.assertIs(caught.exception.__cause__, cause)
+        self.assertIs(self.window.last_frame, self.previous)
+
+    def test_unexpected_backend_error_is_not_disguised_as_recoverable(self):
+        self.backend.grab.side_effect = ValueError("programming error")
+        with self.assertRaisesRegex(ValueError, "programming error"):
+            self.window.capture()
+        self.assertIs(self.window.last_frame, self.previous)
+
+    def test_capture_timestamp_includes_time_spent_inside_backend(self):
+        now = [100.0]
+
+        def grab(_region):
+            now[0] += 10
+            return self.pixels
+
+        self.backend.grab.side_effect = grab
+        with patch("farmbot.desktop.time.monotonic", side_effect=lambda: now[0]):
+            frame = self.window.capture()
+            self.assertEqual(frame.captured_at, 100)
+            inputs = SafeInput(self.window, StopController(key_check=lambda: False))
+            with self.assertRaisesRegex(InputSafetyError, "antiga"):
+                inputs.click(frame, Match(1, 1, 5, 5, .99, "menu"))
+
+
 if __name__ == "__main__":
     unittest.main()

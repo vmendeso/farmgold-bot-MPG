@@ -15,7 +15,7 @@ from pathlib import Path
 from .desktop import HoverUnavailable
 from .models import Stage
 from .navigation import CalibrationError, DryRunComplete, NavigationError, Navigator, _normalized, _STAGE_ID
-from .vision import Match, Vision
+from .vision import Match, Vision, VisionError
 
 log = logging.getLogger(__name__)
 _TOOLTIP_ID = re.compile(r"\[\s*([1-9]\d*)\s*[-–—]\s*([1-9]\d*)\s*\]")
@@ -67,22 +67,26 @@ class MapNavigator(Navigator):
         self.label_vision = vision
         self.label_fallback_vision = None
         self.label_edge_vision = None
+        self.label_edge_confirm_vision = None
+        self.last_label_evidence = None
         self.tooltip_vision = vision
         if isinstance(vision, Vision):
             self.label_vision = Vision({**vision.config, "text_psm": 7,
                                        "white_text": True,
                                        "min_confidence": config.get("label_word_confidence", 0.25)}, vision.base_dir)
             # The same tiny 8 can become B at 2x while remaining readable at
-            # 3x. Retry the pixels only when the first complete label is absent;
+            # 3x. Independent preprocessing variants vote on complete labels;
             # never replace characters or fill fields from another reading.
             fallback_scale = 3.0 if float(vision.config.get("ocr_scale", 3.0)) != 3.0 else 4.0
             self.label_fallback_vision = Vision(
                 {**self.label_vision.config, "ocr_scale": fallback_scale}, vision.base_dir)
             # A strict brightness mask can remove a digit's antialiased edge
-            # at every scale. One final neutral-pixel mask preserves more of
+            # at every scale. An alternate neutral-pixel mask preserves more of
             # that edge while still excluding colored, animated scenery.
             self.label_edge_vision = Vision(
                 {**self.label_vision.config, "ocr_scale": 2.0, "white_text_value_min": 150}, vision.base_dir)
+            self.label_edge_confirm_vision = Vision(
+                {**self.label_edge_vision.config, "ocr_scale": 3.0}, vision.base_dir)
             self.tooltip_vision = Vision({**vision.config, "text_psm": 7,
                                          "min_confidence": 0}, vision.base_dir)
         self._hints: dict[str, tuple[str, tuple[float, float]]] = {}
@@ -353,7 +357,11 @@ class MapNavigator(Navigator):
         Animated scenery can turn a visible 7 into an OCR 1 for one frame.
         No observation from a prior call is reused when the label is unstable.
         """
-        deadline = time.monotonic() + self.label_timeout
+        self.last_label_evidence = None
+        timeout = self.label_timeout
+        if isinstance(self.vision, Vision) and self.vision.remote_ocr.available:
+            timeout = max(timeout, 2 * (self.label_timeout + self.vision.remote_ocr.config['timeout_seconds']) + 1)
+        deadline = time.monotonic() + timeout
         hover_retry_logged = False
         while time.monotonic() < deadline:
             frame, menu = self._capture_menu()
@@ -375,33 +383,93 @@ class MapNavigator(Navigator):
         previous = None
         while time.monotonic() < deadline:
             frame, menu = self._capture_menu()
-            stage = self._read_stage_from_frame(frame, menu)
+            stage = self._read_stage_from_frame(frame, menu, deadline=deadline)
             if time.monotonic() >= deadline:
                 break
             if stage is not None and stage == previous:
                 return stage
             previous = stage
             self.stop.wait(min(self.label_poll_interval, max(0, deadline - time.monotonic())))
-        log.warning("Battlefield stage label did not stabilize within %.2fs", self.label_timeout)
+        log.warning("Battlefield stage label did not stabilize within %.2fs", timeout)
         return None
 
-    def _read_stage_from_frame(self, frame, menu: Match) -> Stage | None:
+    def _parse_stage_lines(self, lines):
+        text = " ".join(line.text for line in lines if line.confidence >= float(self.config.get("label_confidence", 0.25)))
+        ids = {f"{int(a)}-{int(b)}" for a, b in _STAGE_ID.findall(text)}
+        normalized = _normalized(text)
+        difficulties = {name for name in self.config["difficulty_names"]
+                        if re.search(r"(?<!\w)" + re.escape(_normalized(name)) + r"(?!\w)", normalized)}
+        ambiguous = len(ids) > 1 or len(difficulties) > 1
+        stage = Stage(next(iter(ids)), next(iter(difficulties))) if len(ids) == len(difficulties) == 1 else None
+        return stage, ambiguous
+
+    def _read_stage_from_frame(self, frame, menu: Match, *, deadline=None) -> Stage | None:
+        """Require two preprocessing variants to agree, then temporal confirmation.
+
+        A syntactically valid 2-58 is not more trustworthy than 2-B. Read all
+        available variants: ties and multi-stage readings cannot authorize a
+        stage. No expected ID, range of levels or character repair is used.
+        """
         roi = self._normalized_box(frame.image, self._box(
             frame.image, menu, self._offset("current_stage_offset", [-570, 21, 560, 31])))
-        for reader in (self.label_vision, self.label_fallback_vision, self.label_edge_vision):
+        evidence = self.last_label_evidence = {"frame": frame, "roi": roi, "reads": [], "selected": None}
+        local_deadline = min(deadline, time.monotonic() + self.label_timeout) if deadline is not None else None
+        votes = {}
+        ambiguous = False
+        for name, reader in (("primary", self.label_vision), ("scaled", self.label_fallback_vision),
+                             ("edges", self.label_edge_vision), ("edges_scaled", self.label_edge_confirm_vision)):
             if reader is None:
                 continue
-            lines = reader.read_lines(frame.image, roi=roi, mode="text")
-            text = " ".join(line.text for line in lines if line.confidence >= float(self.config.get("label_confidence", 0.25)))
-            ids = {f"{int(a)}-{int(b)}" for a, b in _STAGE_ID.findall(text)}
-            normalized = _normalized(text)
-            difficulties = {name for name in self.config["difficulty_names"]
-                            if re.search(r"(?<!\w)" + re.escape(_normalized(name)) + r"(?!\w)", normalized)}
-            if len(ids) == len(difficulties) == 1:
-                return Stage(next(iter(ids)), next(iter(difficulties)))
-            log.debug("Battlefield label OCR rejected: %r", text)
-            if len(ids) > 1 or len(difficulties) > 1:
-                return None  # A later preprocessing variant cannot hide ambiguity.
+            self.stop.check()
+            if deadline is not None and time.monotonic() >= deadline:
+                return None
+            try:
+                lines = reader.read_lines(frame.image, roi=roi, mode="text", deadline=local_deadline)
+            except VisionError as exc:
+                evidence["error"] = str(exc)
+                alternative = self._remote_stage(frame, roi, deadline, evidence) if not ambiguous else None
+                if alternative is not None:
+                    return alternative
+                raise
+            stage, multiple = self._parse_stage_lines(lines)
+            ambiguous |= multiple
+            evidence["reads"].append({"variant": name, "stage": stage.key if stage else None,
+                                      "ambiguous": multiple,
+                                      "lines": [{"text": line.text, "confidence": line.confidence} for line in lines]})
+            if stage is not None:
+                votes[stage] = votes.get(stage, 0) + 1
+        if deadline is not None and time.monotonic() >= deadline:
+            return None
+        if ambiguous:
+            return None
+        if not votes:
+            return self._remote_stage(frame, roi, deadline, evidence)
+        highest = max(votes.values())
+        winners = [stage for stage, count in votes.items() if count == highest]
+        if highest < 2 or len(winners) != 1:
+            alternative = self._remote_stage(frame, roi, deadline, evidence)
+            if alternative in votes:
+                return alternative
+            evidence['selected'] = None
+            return None
+        evidence["selected"] = winners[0].key
+        return winners[0]
+
+    def _remote_stage(self, frame, roi, deadline, evidence):
+        if not isinstance(self.vision, Vision):
+            return None
+        lines = self.vision.remote_lines(frame.image, roi, 'stage', stop=self.stop, deadline=deadline)
+        if lines is None:
+            return None
+        stage, ambiguous = self._parse_stage_lines(lines)
+        evidence['reads'].append({'variant': 'groq', 'stage': stage.key if stage else None,
+                                  'ambiguous': ambiguous, 'lines': [{'text': l.text, 'confidence': l.confidence} for l in lines]})
+        self.stop.check()
+        if self.window is not None:
+            self.window.assert_foreground()
+        if stage is not None and not ambiguous and (deadline is None or time.monotonic() < deadline):
+            evidence['selected'] = stage.key
+            return stage
         return None
 
     def _ready(self, page: dict) -> None:

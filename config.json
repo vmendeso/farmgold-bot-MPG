@@ -21,7 +21,14 @@
     "green_logs": false,
     "logs_linewise": true,
     "logs_line_psm": 7,
-    "logs_ocr_timeout": 6
+    "logs_ocr_timeout": 6,
+    "groq": {
+      "enabled": true,
+      "model": "qwen/qwen3.8-27b",
+      "timeout_seconds": 4.0,
+      "min_interval_seconds": 1.0,
+      "max_requests_per_hour": 60
+    }
   },
   "measurement": {
     "battles_per_stage": 5,
@@ -215,7 +222,10 @@
                 225,
                 80
               ],
-              "resampling": "nearest"
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
             }
           },
           {
@@ -246,7 +256,10 @@
                 225,
                 80
               ],
-              "resampling": "nearest"
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
             },
             "skip_if": {
               "template": "templates/nightmare_selected.png",
@@ -261,12 +274,15 @@
                 225,
                 80
               ],
-              "resampling": "nearest"
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
             }
           },
           {
             "click": {
-              "template": "templates/act4.png",
+              "template": "templates/act4_label.png",
               "threshold": 0.9,
               "scales": [
                 0.75,
@@ -278,7 +294,10 @@
                 165,
                 85
               ],
-              "resampling": "nearest"
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
             },
             "expect": {
               "template": "templates/act4_selected.png",
@@ -344,7 +363,10 @@
               225,
               80
             ],
-            "resampling": "nearest"
+            "resampling": [
+              "nearest",
+              "linear"
+            ]
           }
         ]
       },
@@ -395,6 +417,10 @@
                 225,
                 225,
                 80
+              ],
+              "resampling": [
+                "default",
+                "linear"
               ]
             }
           },
@@ -412,6 +438,10 @@
                 300,
                 240,
                 390
+              ],
+              "resampling": [
+                "default",
+                "nearest"
               ]
             },
             "expect": {
@@ -426,6 +456,10 @@
                 225,
                 225,
                 80
+              ],
+              "resampling": [
+                "default",
+                "linear"
               ]
             },
             "skip_if": {
@@ -440,12 +474,16 @@
                 225,
                 225,
                 80
+              ],
+              "resampling": [
+                "default",
+                "linear"
               ]
             }
           },
           {
             "click": {
-              "template": "templates/act1.png",
+              "template": "templates/act1_label.png",
               "threshold": 0.9,
               "scales": [
                 0.75,
@@ -457,7 +495,10 @@
                 150,
                 85
               ],
-              "resampling": "linear"
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
             },
             "expect": {
               "template": "templates/act1_selected.png",
@@ -516,6 +557,10 @@
               225,
               225,
               80
+            ],
+            "resampling": [
+              "default",
+              "linear"
             ]
           }
         ]
@@ -567,6 +612,15 @@
                 225,
                 225,
                 80
+              ],
+              "template_variants": [
+                {
+                  "template": "templates/inferno_selected_native.png",
+                  "scales": [
+                    1
+                  ],
+                  "resampling": "nearest"
+                }
               ]
             }
           },
@@ -597,6 +651,15 @@
                 225,
                 225,
                 80
+              ],
+              "template_variants": [
+                {
+                  "template": "templates/inferno_selected_native.png",
+                  "scales": [
+                    1
+                  ],
+                  "resampling": "nearest"
+                }
               ]
             },
             "skip_if": {
@@ -611,12 +674,21 @@
                 225,
                 225,
                 80
+              ],
+              "template_variants": [
+                {
+                  "template": "templates/inferno_selected_native.png",
+                  "scales": [
+                    1
+                  ],
+                  "resampling": "nearest"
+                }
               ]
             }
           },
           {
             "click": {
-              "template": "templates/act2.png",
+              "template": "templates/act2_label.png",
               "threshold": 0.9,
               "scales": [
                 0.75,
@@ -628,10 +700,13 @@
                 165,
                 85
               ],
-              "resampling": "nearest"
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
             },
             "expect": {
-              "template": "templates/act2_selected.png",
+              "template": "templates/act2_selected_body.png",
               "threshold": 0.9,
               "scales": [
                 1,
@@ -642,10 +717,19 @@
                 220,
                 165,
                 85
+              ],
+              "template_variants": [
+                {
+                  "template": "templates/act2_selected_native.png",
+                  "scales": [
+                    1
+                  ],
+                  "resampling": "nearest"
+                }
               ]
             },
             "skip_if": {
-              "template": "templates/act2_selected.png",
+              "template": "templates/act2_selected_body.png",
               "threshold": 0.9,
               "scales": [
                 1,
@@ -656,13 +740,22 @@
                 220,
                 165,
                 85
+              ],
+              "template_variants": [
+                {
+                  "template": "templates/act2_selected_native.png",
+                  "scales": [
+                    1
+                  ],
+                  "resampling": "nearest"
+                }
               ]
             }
           }
         ],
         "ready": [
           {
-            "template": "templates/act2_selected.png",
+            "template": "templates/act2_selected_body.png",
             "threshold": 0.9,
             "scales": [
               1,
@@ -673,6 +766,15 @@
               220,
               165,
               85
+            ],
+            "template_variants": [
+              {
+                "template": "templates/act2_selected_native.png",
+                "scales": [
+                  1
+                ],
+                "resampling": "nearest"
+              }
             ]
           },
           {
@@ -687,6 +789,15 @@
               225,
               225,
               80
+            ],
+            "template_variants": [
+              {
+                "template": "templates/inferno_selected_native.png",
+                "scales": [
+                  1
+                ],
+                "resampling": "nearest"
+              }
             ]
           }
         ]

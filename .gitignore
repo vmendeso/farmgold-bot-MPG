@@ -8,3 +8,5 @@ artifacts/
 .tools/
 
 /farmgold-bot-MPG/
+.env
+.env.*

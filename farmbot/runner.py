@@ -46,9 +46,9 @@ def log_profit_drop(decision, reason):
              decision.reference.target.key, decision.reference.gold_per_minute, decision.difference)
 
 
-def read_results(vision, image, measurement: dict, diagnostics: dict | None = None):
+def read_results(vision, image, measurement: dict, diagnostics: dict | None = None, *, stop=None):
     """Read a complete log snapshot; optional diagnostics never contain OCR text."""
-    from .vision import VisionError
+    from .vision import Vision, VisionError
 
     diagnostics = {} if diagnostics is None else diagnostics
     diagnostics.clear()
@@ -88,11 +88,19 @@ def read_results(vision, image, measurement: dict, diagnostics: dict | None = No
         lines = vision.read_lines(image, roi=roi, mode="logs")
     except VisionError:
         diagnostics["cause"] = "ocr_error"
-        raise
+        lines = vision.remote_lines(image, roi, 'logs', stop=stop) if isinstance(vision, Vision) else None
+        if lines is None:
+            raise
+        diagnostics['provider'] = 'groq'
+        diagnostics.pop('cause', None)
     rows = [parse_log_entry(line.text, measurement.get("notification_patterns")) for line in lines]
     diagnostics["line_count"] = len(lines)
     # A partial read must not masquerade as a shift in the rolling log.
     if any(row is None for row in rows):
+        alternative = vision.remote_lines(image, roi, 'logs', local_lines=lines, stop=stop) if isinstance(vision, Vision) else None
+        if alternative is not None:
+            diagnostics.update(provider='groq', line_count=len(alternative))
+            return [parse_log_entry(line.text, measurement.get('notification_patterns')) for line in alternative]
         diagnostics.update(cause="rejected_rows", rejected_lines=[
             {"line": index, "reason": "empty_or_unconfirmed" if not line.text.strip() else "unrecognized_format"}
             for index, (line, row) in enumerate(zip(lines, rows), 1) if row is None
@@ -176,6 +184,28 @@ class StageDefeated(NavigationError):
         super().__init__(f"{description} no log: {raw}; medição encerrada")
 
 
+def save_stage_diagnostic(navigator, config, target):
+    """Save the actual OCR label frame, never a later screenshot of animation."""
+    evidence = getattr(navigator, "last_label_evidence", None)
+    if not isinstance(evidence, dict) or evidence.get("frame") is None:
+        return None
+    try:
+        from .desktop import save_frame
+        from .vision import _roi_box
+        image = evidence["frame"].image
+        x, y, w, h = _roi_box(image, evidence["roi"])
+        path = output_path(config, "artifacts") / f"ocr-stage-{time.time_ns()}.png"
+        save_frame(SimpleNamespace(image=image[y:y+h, x:x+w]), path)
+        metadata = {key: evidence[key] for key in ("reads", "selected", "error") if key in evidence}
+        metadata.update(expected=target.key, crop_box=[x, y, w, h])
+        path.with_suffix(".json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
+        log.warning("Diagnóstico da legenda no instante da leitura: %s", path)
+        return path
+    except Exception as exc:
+        log.warning("Não foi possível salvar diagnóstico da legenda: %s", exc)
+        return None
+
+
 class Collector:
     def __init__(self, window, vision, navigator, stop, store: Store, config: dict, *,
                  comparison_catalog=None, stop_on_defeat: bool = False):
@@ -204,6 +234,7 @@ class Collector:
         completed = 0
         ocr_failures = 0
         ocr_diagnostic_attempted = False
+        label_diagnostic_attempted = False
         failure_reason = ""
         changed_stage = None
         changed_deadline = None
@@ -226,6 +257,10 @@ class Collector:
                     if visible is None:
                         raise VisionError("Legenda da fase não reconhecida")
                     if visible != target:
+                        if (self.comparison_catalog is not None
+                                and visible.difficulty == target.difficulty
+                                and visible not in self.comparison_catalog):
+                            raise VisionError(f"Legenda fora do catálogo confirmado: {visible.key}; nova leitura necessária")
                         # A defeat can make the game retreat before its log is
                         # read. Only a primed log and a confirmed lower stage in
                         # the same difficulty permit two fresh reads for proof.
@@ -242,7 +277,10 @@ class Collector:
                     elif changed_stage is not None:
                         raise NavigationError("Fase mudou novamente antes da confirmação da derrota")
                     frame = self.window.capture()
-                    rows = read_results(self.vision, frame.image, cfg, diagnostics=diagnostics)
+                    rows = read_results(self.vision, frame.image, cfg, diagnostics=diagnostics, stop=self.stop)
+                    self.stop.check()
+                    if hasattr(self.window, 'assert_foreground'):
+                        self.window.assert_foreground()
                     if rows is None:
                         raise VisionError(result_read_failure(diagnostics))
                 except VisionError as exc:
@@ -254,6 +292,9 @@ class Collector:
                     if frame is not None and diagnostics.get("roi") is not None and not ocr_diagnostic_attempted:
                         ocr_diagnostic_attempted = True
                         save_log_diagnostic(frame, self.config, target, run_id, diagnostics)
+                    if frame is None and not label_diagnostic_attempted:
+                        label_diagnostic_attempted = True
+                        save_stage_diagnostic(self.navigator, self.config, target)
                     if ocr_failures >= limit:
                         raise
                     delay = cfg["poll_interval"]
@@ -338,6 +379,8 @@ class Collector:
             raise
         except BaseException as exc:
             failure_reason = f"{type(exc).__name__}: {exc}"
+            if isinstance(exc, NavigationError):
+                save_stage_diagnostic(self.navigator, self.config, target)
             raise
         finally:
             if failure_reason:

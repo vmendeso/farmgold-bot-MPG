@@ -1,0 +1,424 @@
+﻿arquivo,classe,teste,linha,decisão,avaliação e limite
+tests/test_cli.py,SearchBudgetArgumentTests,test_run_accepts_positive_budget_and_preserves_other_run_options,13,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,SearchBudgetArgumentTests,test_omitted_budget_keeps_configuration_authoritative,19,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,SearchBudgetArgumentTests,test_nonpositive_or_noninteger_budget_fails_before_runtime,22,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,SearchBudgetArgumentTests,test_measurement_budget_is_only_a_run_option,29,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,SearchBudgetArgumentTests,test_runtime_override_reaches_search_without_rewriting_config,33,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,BattleCountArgumentTests,test_run_accepts_one_battle_with_five_stage_budget,61,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,BattleCountArgumentTests,test_invalid_battle_counts_fail_before_runtime,67,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,BattleCountArgumentTests,test_battle_count_override_is_only_a_run_option,74,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,BattleCountArgumentTests,test_search_receives_override_or_saved_count_without_rewriting_config,80,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,StageSelectionArgumentTests,test_selection_parses_exact_target_with_optional_focus_and_execute,113,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,StageSelectionArgumentTests,test_selection_without_execute_preserves_default_dry_run,120,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,StageSelectionArgumentTests,test_invalid_stage_or_missing_difficulty_fails_before_runtime,124,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,StageSelectionArgumentTests,test_selection_dispatches_to_navigator_without_collection_or_storage,137,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,LoopArgumentTests,test_loop_defaults_to_five_minutes_and_one_new_stage,168,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,LoopArgumentTests,test_invalid_intervals_fail_before_desktop_access,174,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,LoopArgumentTests,test_loop_dispatches_fresh_cycle_handler_and_shared_stop,180,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,ControlCommandTests,test_gui_dispatch_does_not_touch_game_or_start_loop_in_cli,216,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_cli.py,ControlCommandTests,test_stop_signals_only_an_active_instance_without_window_access,223,manter,Argumentos e despacho com dependências simuladas; não valida tela.
+tests/test_config.py,EarlyStopConfigurationTests,test_omitted_or_null_threshold_is_disabled,31,manter,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_config.py,EarlyStopConfigurationTests,test_positive_finite_threshold_preserves_gold_per_minute_units,36,manter,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_config.py,EarlyStopConfigurationTests,test_invalid_threshold_fails_configuration_validation,42,manter,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_config.py,EarlyStopConfigurationTests,test_restart_seconds_default_zero_and_accepts_nonnegative_finite_numbers,49,manter,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_config.py,EarlyStopConfigurationTests,test_restart_seconds_rejects_invalid_values,55,manter,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_config.py,EarlyStopConfigurationTests,test_fractional_and_boolean_collection_budgets_are_rejected,62,adicionado,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_config.py,EarlyStopConfigurationTests,test_nonfinite_or_nonpositive_time_limits_cannot_start_a_run,73,adicionado,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_config.py,EarlyStopConfigurationTests,test_invalid_log_regions_and_order_are_rejected_before_capture,83,adicionado,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_config.py,EarlyStopConfigurationTests,test_zero_start_delay_is_valid_but_negative_and_nonfinite_delays_are_not,95,adicionado,Contrato de configuração antes da coleta; rejeita entradas inválidas.
+tests/test_continuous.py,SearchCycleTests,test_each_cycle_creates_new_window_input_and_navigator_then_closes,48,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_foreground_and_preflight_are_checked_before_search,63,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_missing_game_defers_without_any_capture_or_hover_and_can_reacquire,71,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_real_capture_failure_defers_cycle_and_next_cycle_uses_new_window,83,adicionado,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_background_game_defers_before_capture_hover_or_navigation,108,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_explicit_focus_is_consumed_on_first_call_only,120,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_focus_request_is_consumed_even_if_first_window_is_absent,128,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_preflight_calibration_failure_is_fatal_without_focus_or_other_gui,137,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_stop_during_preflight_prevents_pending_focus_request,148,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_recoverable_search_errors_defer_without_restoration_clicks,157,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_dry_run_complete_is_success_printed_without_error_screenshot,172,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_stop_failsafe_keyboard_and_unexpected_errors_propagate,181,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_error_diagnostic_uses_real_last_frame_without_extra_capture,194,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_mock_or_empty_last_frame_does_not_create_fake_screenshot,205,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_generic_navigation_selected_without_icon_map_mode,212,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_export_failure_still_closes_capture_and_stops_scheduler,218,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_continuous.py,SearchCycleTests,test_export_failure_never_replaces_emergency_stop,224,manter,Adiamento e recursos por rodada; inclui integração com WindowManager para erro MSS.
+tests/test_desktop.py,DesktopSafetyTests,test_dry_run_never_imports_input_library_or_clicks,25,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_rejects_all_unsafe_geometry,30,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_rejects_stale_or_future_frame,36,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_rejects_window_move_resize_and_handle_change,41,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_rejects_foreground_change_and_overlap,47,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_rechecks_after_moving_pointer,56,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_real_input_uses_guarded_desktop_coordinates,65,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_dry_run_hover_does_not_import_input_or_move,73,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_waits_for_ownership_without_clicking,79,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_rejects_persistent_foreign_ownership,89,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_tolerates_delayed_ownership_without_repeating_movement,98,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_honors_callers_remaining_deadline,113,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_wait_rechecks_every_hard_guard,131,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_timeout_configuration_is_finite_positive_and_short,165,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_rejects_window_or_focus_change_after_movement,173,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_rejects_outside_target_before_moving,187,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_hover_checks_emergency_stop_after_moving,195,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_click_still_rejects_unowned_point_before_moving,203,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_window_selection_rejects_multiple_matches,212,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,DesktopSafetyTests,test_window_manager_does_not_reacquire_changed_window,218,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,EmergencyStopTests,test_esc_interrupts_wait_without_background_thread,231,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,EmergencyStopTests,test_background_thread_catches_short_press_during_work,239,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,EmergencyStopTests,test_stop_before_click,249,manter,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,CaptureSafetyTests,test_success_uses_client_coordinates_and_copies_bgr_pixels,277,adicionado,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,CaptureSafetyTests,test_background_or_unavailable_window_prevents_capture,286,adicionado,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,CaptureSafetyTests,test_focus_loss_during_capture_discards_new_frame,296,adicionado,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,CaptureSafetyTests,test_move_resize_or_process_change_during_capture_discards_new_frame,303,adicionado,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,CaptureSafetyTests,test_mss_failure_is_recoverable_window_error_without_returning_old_frame,322,adicionado,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,CaptureSafetyTests,test_unexpected_backend_error_is_not_disguised_as_recoverable,331,adicionado,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_desktop.py,CaptureSafetyTests,test_capture_timestamp_includes_time_spent_inside_backend,337,adicionado,Guardas de captura/clique/hover; Win32 e MSS simulados não comprovam monitor físico.
+tests/test_gui.py,GuiSettingsTests,test_defaults_are_dry_run_without_automatic_switch,13,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiSettingsTests,test_portuguese_decimal_input_and_success_percentage,19,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiSettingsTests,test_restart_seconds_support_portuguese_decimal_zero_and_legacy_config,25,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiSettingsTests,test_early_stop_accepts_portuguese_decimal_and_zero_disables,31,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiSettingsTests,test_early_stop_config_maps_missing_and_null_to_zero_and_preserves_limit,35,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiSettingsTests,test_invalid_values_never_produce_settings,41,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiSettingsTests,test_config_preferences_are_preserved,53,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiSettingsTests,test_command_uses_argument_list_and_global_focus_before_loop,62,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiSettingsTests,test_dry_run_command_does_not_enable_clicks,71,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_atomic_save_preserves_calibration_and_unknown_fields,89,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_failed_replace_preserves_original_configuration,105,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_restart_seconds_save_roundtrip_preserves_calibration,112,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_early_stop_roundtrip_and_disable_preserve_other_search_values,118,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_worker_is_hidden_and_stop_is_written_after_launch,127,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_stop_request_created_during_popen_is_never_erased,151,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_other_active_bot_prevents_launch_and_keeps_its_stop_request,162,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_stopped_worker_can_restart_and_stop_does_not_touch_unowned_processes,172,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_tail_is_bounded_and_missing_file_is_empty,185,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_gui.py,GuiFilesAndWorkerTests,test_activity_distinguishes_waiting_active_stopping_and_stopped,193,manter,Configuração e processo; não exercita renderização/interação real com Tk.
+tests/test_instance.py,InstanceLockTests,test_second_lock_is_rejected_without_releasing_first,27,manter,Lock local e concorrência real entre processos; não cobre sistemas de arquivos remotos.
+tests/test_instance.py,InstanceLockTests,test_release_reuses_same_persistent_file_and_writes_informational_pid,36,manter,Lock local e concorrência real entre processos; não cobre sistemas de arquivos remotos.
+tests/test_instance.py,InstanceLockTests,test_exception_releases_lock_and_preserves_original_exception,45,manter,Lock local e concorrência real entre processos; não cobre sistemas de arquivos remotos.
+tests/test_instance.py,InstanceLockTests,test_cleanup_is_idempotent_before_acquisition_and_after_release,52,manter,Lock local e concorrência real entre processos; não cobre sistemas de arquivos remotos.
+tests/test_instance.py,InstanceLockTests,test_stale_pid_does_not_block_a_new_instance,62,manter,Lock local e concorrência real entre processos; não cobre sistemas de arquivos remotos.
+tests/test_instance.py,InstanceLockTests,test_separate_process_cannot_acquire_owned_lock,69,manter,Lock local e concorrência real entre processos; não cobre sistemas de arquivos remotos.
+tests/test_instance.py,InstanceLockTests,test_abrupt_process_exit_releases_os_lock,84,manter,Lock local e concorrência real entre processos; não cobre sistemas de arquivos remotos.
+tests/test_log_ocr.py,LogOCRTests,test_recovers_decimal_from_two_visual_reads_without_text_repair,31,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_untimed_defeat_requires_two_matching_reads_and_preserves_occurrences,40,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_unconfirmed_untimed_defeat_is_not_accepted_as_notification,48,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_valid_but_conflicting_numbers_do_not_become_battles,54,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_two_agreeing_reads_outvote_one_different_gold_read,61,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_final_variant_confirms_decimal_without_accepting_wrong_gold,68,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_last_grayscale_variant_confirms_separator_without_parser_repair,79,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_exact_pixels_reuse_text_without_removing_occurrences_or_positions,91,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_changed_pixels_or_settings_are_recognized_again,102,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_failed_reads_are_not_cached,113,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_retries_share_one_deadline,123,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_late_variants_cannot_extend_the_shared_deadline,131,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_real_capture_that_stopped_collection_keeps_decimal_and_loot,149,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_real_defeat_without_duration_keeps_complete_log_readable,162,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_current_smaller_font_reads_minutes_gold_and_exp_exactly,173,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_previous_stage_decimal_does_not_block_current_stage_log,186,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_monitor_capture_reads_previous_stage_reward_separator_and_all_five_rows,204,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_new_four_six_captures_keep_decimal_after_row_shift_and_duplicate_duration,217,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_actual_12_24_failure_preserves_small_decimal_12_07,235,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_live_terminal_failure_handles_separator_noise_without_changing_numbers,248,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_same_battle_shifted_to_another_row_preserves_decimal,260,manter,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_log_ocr.py,LogOCRTests,test_real_row_shift_reaches_collector_database_and_restart_adjusted_rate,272,adicionado,Consenso/cache e capturas reais com Tesseract; depende das imagens e versões disponíveis.
+tests/test_loop.py,LoopTests,test_first_callback_is_immediate_and_starts_follow_fixed_cadence,61,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_callback_duration_is_not_added_to_the_interval,66,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_slow_cycles_skip_expired_slots_without_immediate_catch_up,71,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_exact_deadline_remains_available_without_unnecessary_skip,76,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_fractional_interval_preserves_start_schedule,81,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_callback_exception_propagates_without_wait_or_restart,86,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_keyboard_interrupt_from_callback_is_not_swallowed,97,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_esc_during_wait_prevents_the_next_callback,106,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_pending_stop_after_wait_is_checked_before_callback,116,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_stop_before_first_callback_prevents_any_execution,130,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_invalid_interval_rejected_before_work_or_wait,140,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_logs_report_start_finish_next_wait_and_skipped_slots,150,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_explicit_deferred_cycle_waits_until_next_slot_without_completion_log,159,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_slow_deferred_cycle_skips_all_expired_slots_without_immediate_retry,179,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_loop.py,LoopTests,test_esc_during_deferred_wait_prevents_any_new_callback,196,manter,Relógio virtual e parada; não mede suspensão real do Windows.
+tests/test_map_navigation.py,MapNavigationTests,test_missing_world_anchor_retries_fresh_frames_without_clicks,155,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_anchor_retry_expires_without_clicking,164,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_anchor_retry_honors_stop_and_does_not_retry_other_errors,172,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_reveals_label_with_guarded_hover,184,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_retries_only_unavailable_hover_with_fresh_target,190,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_hover_retry_expires_without_accepting_label,202,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_does_not_retry_other_input_safety_failures,215,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_tooltip_clear_retries_hover_with_new_frame_and_menu_anchor,227,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_node_hover_retry_recaptures_gold_and_keeps_same_deadline,236,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_node_hover_uses_one_deadline_including_tooltip_clear_and_retries,260,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_node_recognition_does_not_restart_hover_deadline,283,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_map_hover_never_retries_other_input_safety_errors_or_stop,295,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_click_target_retries_only_hover_then_rechecks_before_one_click,308,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_world_open_and_close_retry_hover_without_repeating_clicks,320,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_map_hover_retry_stops_on_lost_focus_during_recapture,338,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_map_hover_retry_honors_stop_during_wait,347,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_map_hover_does_not_move_after_slow_capture_exhausts_deadline,357,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_map_click_failure_is_not_retried,373,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_node_retry_uses_new_frame_and_does_not_click,380,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_node_retry_timeout_and_cancel_do_not_click,390,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_selection_recovery_still_checks_tooltip_on_click_frame,401,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_rejects_transient_initial_misread,419,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_never_accepts_persistently_alternating_readings,433,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_ambiguity_breaks_consecutive_confirmation,440,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_does_not_return_prior_confirmed_stage_on_ambiguity,452,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_discovery_reads_tooltips_and_returns_without_switching_stage,457,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_select_clicks_only_after_tooltip_confirmation,465,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_restore_initial_rescans_newly_unoccluded_marker,470,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_unseen_or_locked_stage_is_not_clicked,478,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_old_hint_alone_cannot_authorize_input,484,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_missing_selected_difficulty_prevents_hovering_nodes,491,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_dry_run_does_not_advance_menu_or_move_cursor,497,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_already_open_world_does_not_toggle_menu,505,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_discovery_closes_preexisting_world_before_initial_stage_read,510,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_prepare_battle_clears_tooltip_before_recognizing_world_header,516,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_prepare_battle_recognizes_close_button_without_header,531,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_prepare_battle_never_guesses_missing_close_button,537,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_prepare_battle_dry_run_does_not_close_world,544,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_current_stage_observation_never_closes_open_world,552,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_label_vision_preserves_white_text_preprocessing,558,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_edge_fallback_requires_complete_reading_and_temporal_confirmation,569,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_edge_fallback_never_overrides_valid_or_ambiguous_prior_readings,586,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_edge_fallback_never_combines_partial_fields_or_repairs_characters,602,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_label_fallback_reads_same_frame_and_keeps_temporal_confirmation,617,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_label_fallback_does_not_replace_valid_or_ambiguous_readings,633,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_label_fallback_never_combines_partial_readings_or_repairs_characters,645,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_missing_later_reference_preflight_prevents_any_input,655,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_visible_skip_guard_prevents_route_click,662,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_absent_skip_guard_runs_normal_checked_step,672,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_missing_skip_reference_preflight_prevents_any_input,680,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_invalid_skip_guard_schema_prevents_any_input,691,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_ready_page_does_not_execute_enter_route,697,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_marker_hint_scales_and_moves_with_recognized_anchor,705,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_stale_tooltip_must_disappear_before_next_node,712,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_node_hover_uses_lower_interior_of_recognized_marker,721,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_node_hover_fraction_can_be_calibrated_but_never_outside_marker,727,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_discovery_skips_and_records_only_unreadable_tooltip,736,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_selection_scans_past_unreadable_tooltip_without_guessing,751,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_unreadable_target_is_not_selected_by_position,765,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,MapNavigationTests,test_discovery_does_not_swallow_other_navigation_failures,771,manter; relógio comum corrigido,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,GoldColorTests,test_tooltip_region_ignores_darker_gold_border_behind_title,779,manter,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,GoldColorTests,test_unreadable_tooltip_diagnostic_uses_supplied_frame_without_capture,798,manter,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,GoldColorTests,test_tooltip_ink_mask_removes_overlapping_white_text_and_gold_button,827,manter,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,GoldColorTests,test_grayscale_similar_red_or_gray_marker_is_not_gold,840,manter,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,ObservedFooterTests,test_reduced_digit_one_recovers_edges_without_using_unmasked_scenery,854,ajustado,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,ObservedFooterTests,test_reduced_footer_recovers_digit_eight_without_replacing_letters,878,manter,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_map_navigation.py,ObservedFooterTests,test_long_footer_keeps_difficulty_and_excludes_next_stage_portal,902,manter,Fluxos usam VisionFake; máscaras e rodapés têm testes com pixels/OCR; não prova todos os templates.
+tests/test_navigation.py,NavigationTests,test_current_stage_requires_both_id_and_known_difficulty,125,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_current_stage_accepts_case_accents_but_rejects_ambiguity,130,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_discovery_requires_positive_unlock_and_lock_overrides,137,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_discovery_rejects_unconfigured_navigation_before_clicking,142,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_selection_confirms_details_and_exact_battle_label,148,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_selection_rechecks_unlock_after_discovery,153,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_selection_fails_when_actual_difficulty_differs,160,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_dry_run_stops_at_first_identified_click,165,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_missing_expected_screen_never_reclicks,173,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_preclick_retries_are_bounded_and_never_click_missing_target,179,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_overlapping_card_regions_rejected_before_any_stage_click,185,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_low_confidence_stage_never_considered_unlocked,191,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_unavailable_page_skips_scan_and_returns_to_battle,195,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_stage_selection_needs_confirmation_reference_before_navigation,200,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_empty_visual_reference_is_rejected_before_clicking,206,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_selection_only_checks_unlock_markers_for_requested_card,212,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_full_preflight_requires_selection_references_on_later_pages,221,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_discovery_preflight_allows_missing_selection_references,232,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_missing_template_in_later_step_prevents_first_click,237,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_repeat_uses_distinct_off_marker_and_confirms_on,244,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_repeat_does_not_toggle_when_state_cannot_be_proven,254,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation.py,NavigationTests,test_detector_roi_is_intersected_with_each_card,264,manter,Navegação genérica simulada; manter porque esse modo continua implementado.
+tests/test_navigation_replay.py,NavigationReplayTests,test_inventory_to_nightmare_act_four_with_real_templates_and_delays,109,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_navigation_replay.py,NavigationReplayTests,test_nightmare_route_follows_translated_pixels_without_screen_coordinates,122,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_navigation_replay.py,NavigationReplayTests,test_ready_pages_and_selected_difficulty_skip_unnecessary_clicks,130,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_navigation_replay.py,NavigationReplayTests,test_averno_difficulty_does_not_prove_act_one_or_retry_ineffective_click,141,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_navigation_replay.py,NavigationReplayTests,test_dropdown_click_without_effect_expires_without_reclick_or_option_click,151,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_navigation_replay.py,NavigationReplayTests,test_wrong_difficulty_after_option_click_prevents_act_click,158,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_navigation_replay.py,NavigationReplayTests,test_cancel_or_focus_loss_during_transition_never_causes_another_click,166,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_navigation_replay.py,NavigationReplayTests,test_blank_frame_never_authorizes_input,175,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_navigation_replay.py,NavigationReplayTests,test_page_readiness_matrix_rejects_wrong_act_and_wrong_difficulty,182,adicionado,Rotas com OpenCV/capturas reais; desktop simulado; não é gravação contínua nem prova outros DPI.
+tests/test_panel_position.py,PanelPositionTests,test_actual_failed_inventory_screen_exposes_tab_above_battle,32,manter,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis.
+tests/test_panel_position.py,PanelPositionTests,test_world_header_anchors_controls_both_above_and_below,42,manter,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis.
+tests/test_panel_position.py,PanelPositionTests,test_current_inferno_act_two_page_is_visually_proven,54,manter,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis.
+tests/test_panel_position.py,PanelPositionTests,test_invalid_panel_reference_fails_preflight,66,manter,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis.
+tests/test_panel_position.py,PanelPositionTests,test_open_difficulty_list_and_destination_controls_at_reduced_scale,72,ajustado,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis. Retirada dependência de falha antiga ou de índice da página.
+tests/test_panel_position.py,PanelPositionTests,test_actual_averno_option_failure_and_other_menu_controls,85,ajustado,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis. Retirada dependência de falha antiga ou de índice da página.
+tests/test_panel_position.py,PanelPositionTests,test_actual_averno_selection_is_confirmed_without_assuming_act,102,ajustado,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis. Retirada dependência de falha antiga ou de índice da página.
+tests/test_panel_position.py,PanelPositionTests,test_actual_act2_already_selected_skips_unselected_button,114,ajustado,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis. Retirada dependência de falha antiga ou de índice da página.
+tests/test_panel_position.py,PanelPositionTests,test_nightmare_act4_selected_and_return_act2,125,ajustado,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis. Retirada dependência de falha antiga ou de índice da página.
+tests/test_panel_position.py,PanelPositionTests,test_nightmare_transition_confirmed_before_switching_act,133,ajustado,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis. Retirada dependência de falha antiga ou de índice da página.
+tests/test_panel_position.py,PanelPositionTests,test_actual_tooltip_occlusion_uses_current_world_footer,151,manter,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis.
+tests/test_panel_position.py,PanelPositionTests,test_gold_node_remains_recognizable_in_actual_failed_click_frame,162,manter,Capturas reais e configuração calibrada; não cobre todas as renderizações possíveis.
+tests/test_profitability.py,ProfitabilityTests,test_exact_absolute_three_gold_per_minute_triggers_with_one_completion,33,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_less_than_three_or_better_candidate_keeps_measuring,42,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_boundary_tolerates_only_float_roundoff,48,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_disabled_by_default_or_null,55,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_threshold_rejects_nonpositive_nonfinite_and_boolean_values,60,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_reference_requires_full_reliable_sample_and_win_rate,67,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_missing_or_only_interrupted_candidate_cannot_trigger,79,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_only_accessible_reference_is_used_when_catalog_provided,85,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_same_stage_is_excluded_but_same_number_other_difficulty_can_compare,93,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_best_reference_selected_and_rates_are_weighted_by_observed_time,99,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_stale_future_or_unzoned_aggregates_are_excluded,111,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_recent_interruption_does_not_refresh_old_completed_results,121,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_recent_records_exclude_future_and_expired_samples_before_aggregation,131,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_interruptions_keep_their_observed_time_without_providing_gold,142,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_cache_zero_disables_history_decisions,152,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_restart_time_recalculates_historical_ranking_and_reference,157,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_restart_time_can_change_three_gold_decision_using_same_history,173,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_profitability.py,ProfitabilityTests,test_restart_overhead_applies_only_to_recent_completed_records,181,manter,Política de rendimento com datas e valores conhecidos; manter separada do OCR.
+tests/test_recovery.py,RecoveryTests,test_selects_immediately_previous_confirmed_stage,20,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,RecoveryTests,test_gaps_do_not_create_unconfirmed_stage,26,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,RecoveryTests,test_act_boundary_uses_highest_confirmed_previous_act_level,31,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,RecoveryTests,test_never_switches_difficulty,37,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,RecoveryTests,test_no_lower_confirmed_stage_returns_none,44,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,RecoveryTests,test_accepts_generator_and_ignores_duplicate_candidates,50,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_timed_defeat_and_explicit_collector_failure_are_evidence,60,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_ordinary_interruptions_and_arbitrary_failure_text_are_not_evidence,66,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_later_victory_clears_failure_regardless_of_input_order,74,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_victory_at_same_time_does_not_override_failure,80,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_unrelated_interruptions_neither_clear_nor_refresh_failure,85,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_future_stale_and_timezone_less_evidence_is_excluded,92,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_victory_in_other_difficulty_cannot_clear_failure,100,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_timezone_offsets_and_utc_z_are_compared_as_instants,105,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_recovery.py,FailedHistoryTests,test_zero_window_disables_failure_cache_and_invalid_options_raise,111,manter,Recuo/catálogo e validade da evidência; não valida reconhecimento da derrota por pixels.
+tests/test_results.py,ParserTests,test_reference_screenshot_row,12,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,ParserTests,test_live_ocr_hyphen_delimiters_currency_icon_and_localized_exp,19,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,ParserTests,test_hyphen_delimiter_support_does_not_accept_negative_rewards,25,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,ParserTests,test_noisy_middle_dot_preserves_numbers_and_rejects_attached_signs,31,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,ParserTests,test_colon_reward_separator_preserves_exact_duration_and_rewards,40,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,ParserTests,test_colon_separator_does_not_repair_malformed_time_or_rewards,52,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,ParserTests,test_localized_integer_separators_and_duration,70,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,ParserTests,test_explicit_defeat_without_rewards,77,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,ParserTests,test_incomplete_ambiguous_and_invalid_rows_are_not_victories,82,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,NotificationParserTests,test_exact_untimed_defeat_is_typed_without_inventing_missing_values,101,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,NotificationParserTests,test_known_loot_messages_are_markers_without_rewards_or_battle_time,112,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,NotificationParserTests,test_marker_fingerprints_ignore_case_accents_and_ocr_whitespace,122,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,NotificationParserTests,test_observed_box_prefix_ocr_variants_share_a_stable_fingerprint,127,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,NotificationParserTests,test_unknown_and_incomplete_battle_rows_never_become_markers,136,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,NotificationParserTests,test_explicit_extra_pattern_does_not_relax_battle_parsing,143,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_untimed_defeats_preserve_baseline_and_identical_occurrences,151,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_untimed_defeat_does_not_exempt_following_battle_duration,159,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_baseline_and_repeated_capture_never_count_as_new,166,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_two_identical_new_lines_are_two_occurrences,174,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_growing_log_counts_new_occurrences_including_identical_lines,181,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_changed_row_count_without_complete_prefix_is_not_new,188,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_growing_log_after_long_gap_is_only_a_baseline,194,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_identical_rows_at_baseline_retain_all_five_positions,199,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_missing_ocr_row_is_not_movement,209,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_no_overlap_rebases_without_counting_old_rows,218,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_ambiguous_repeating_sequence_is_rejected,224,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_time_can_resolve_repeating_sequence_without_discarding_occurrences,230,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_long_observation_gap_is_not_counted,236,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_snapshot_simulation_counts_occurrences_exactly_once,243,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_mixed_notification_and_battle_sequence_preserves_every_occurrence,258,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_notification_before_first_new_battle_does_not_require_full_battle_time,279,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_multiple_new_battles_still_need_time_even_with_notification_between,287,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_results.py,TrackerTests,test_identical_notification_rows_remain_distinct_occurrences,294,manter,Parser/alinhamento temporal; preserva ocorrências iguais e recusa ambiguidade.
+tests/test_runner.py,CollectorTests,test_anchored_identical_rows_are_distinct_records_with_unique_ids,87,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_recent_inferior_history_skips_capture_without_inventing_an_interruption,103,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_first_confirmed_inferior_battle_ends_batch_without_false_interruption,115,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_early_exit_preserves_each_identical_confirmed_row_in_current_snapshot,125,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_unreliable_stale_or_inaccessible_reference_does_not_cut_batch,135,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_explicit_observation_without_comparison_catalog_keeps_full_batch,150,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_unchanged_identical_table_times_out_without_fabricated_victories,160,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_transient_ocr_change_requires_two_equal_snapshots,168,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_timeout_after_real_result_records_only_remaining_observation_time,174,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_confirmed_defeat_counts_toward_completed_batch,185,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_old_untimed_defeat_does_not_poison_baseline_or_count_as_battle,192,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_new_untimed_defeat_interrupts_without_a_fabricated_battle_duration,199,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_untimed_defeat_from_other_stage_does_not_abort_current_measurement,209,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_new_untimed_defeat_after_automatic_retreat_is_confirmed_twice,217,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_retreat_may_cross_act_only_with_confirmed_catalog_entry,232,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_old_defeat_cannot_authorize_changed_stage,242,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_retreat_without_primed_baseline_never_claims_a_defeat,250,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_retreat_requires_two_equal_complete_log_reads,257,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_retreat_to_unconfirmed_catalog_entry_is_not_recovered,266,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_retreat_proof_expires_when_ocr_keeps_failing,275,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_timed_defeat_in_search_stops_with_exact_record_and_no_interruption,285,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_timed_defeat_after_retreat_never_credits_other_stage_rows,294,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_new_defeat_is_not_hidden_by_completing_victory_in_same_snapshot,302,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_retreat_without_overlap_never_claims_new_defeat,311,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_retreat_notification_does_not_count_as_defeat,319,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_results_from_another_stage_are_not_credited,327,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_wrong_visible_difficulty_aborts_and_preserves_interruption,333,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_emergency_stop_is_propagated_after_recording_interrupted_attempt,340,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_transient_stage_ocr_failure_recovers_without_inventing_result,351,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_repeated_incomplete_ocr_is_bounded_and_records_interruption,359,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_repeated_ocr_warning_is_throttled_but_final_attempt_is_reported,368,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_ocr_recovery_is_reported_before_confirming_new_battles,380,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_only_first_rejected_frame_is_saved_without_extra_captures,391,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_label_failure_never_saves_previous_successful_log_frame,417,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_crop_write_failure_does_not_stop_collection_or_repeat_writes,435,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_total_stage_timeout_applies_even_with_recent_progress,456,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_new_notifications_neither_count_as_battles_nor_reset_battle_timeout,467,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,CollectorTests,test_live_text_sequence_of_loot_battle_and_box_opening_counts_only_battles,476,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,ResultReadTests,test_diagnostics_identify_rejected_rows_without_exposing_raw_text,508,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,ResultReadTests,test_ocr_engine_exception_retains_only_current_roi_and_cause,524,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,ResultReadTests,test_partial_row_invalidates_entire_snapshot,534,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,ResultReadTests,test_five_equal_visible_rows_remain_five_occurrences,542,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,ResultReadTests,test_mixed_log_keeps_all_five_rows_in_their_visible_order,549,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,ResultReadTests,test_incomplete_battle_with_known_loot_still_invalidates_snapshot,560,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,ResultReadTests,test_configured_notification_pattern_extends_known_forms,566,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,ResultReadTests,test_actual_live_ocr_snapshot_with_box_typo_and_hyphens_is_complete,572,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,AnchoredResultReadTests,test_menu_anchor_resolves_log_roi_in_captured_image_coordinates,594,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,AnchoredResultReadTests,test_anchor_width_scales_offsets_and_region_after_internal_resize,602,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,AnchoredResultReadTests,test_missing_configured_anchor_never_falls_back_to_fixed_roi,609,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,AnchoredResultReadTests,test_out_of_bounds_anchored_region_is_rejected,616,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,AnchoredResultReadTests,test_fixed_proportional_roi_remains_supported_without_anchor_config,626,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,LogDiagnosticTests,test_saved_png_contains_only_the_supplied_log_crop,634,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,LogDiagnosticTests,test_missing_or_invalid_roi_never_falls_back_to_full_frame,654,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_effective_input_dry_run_overrides_config_false_without_measurements,684,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_recent_cache_is_ranked_without_collecting_and_initial_is_restored,696,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_icon_map_prepares_closed_world_before_initial_measurement,710,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_icon_map_dry_run_does_not_prepare_by_clicking,721,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_enabled_final_switch_selects_reliable_best_and_confirms_repeat,729,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_history_skip_preserves_budget_for_new_stage_then_returns_to_best,738,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_stale_cache_is_remeasured_and_bounded_by_new_stage_budget,765,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_confirmed_failure_retreats_and_collects_lower_stage,781,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_failures_descend_monotonically_and_do_not_exceed_collection_budget,795,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_failure_without_lower_stage_does_not_switch_difficulty,809,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_failed_stage_cannot_be_final_winner_even_if_old_history_was_profitable,816,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_unexplained_navigation_error_still_aborts_without_retreat,832,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_recent_confirmed_failure_is_reused_to_retreat_without_retrying_failed_stage,839,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_runner.py,SearchIntegrationTests,test_no_reliable_winner_restores_initial_even_when_auto_switch_enabled,856,ajustado,Corrigido: simular interrupções; derrota real na busca exige StageDefeated e recuo.
+tests/test_runner.py,SearchIntegrationTests,test_calibrated_repeat_is_confirmed_before_each_batch,872,manter,Coleta e banco; a maioria substitui OCR/navegação por simulações.
+tests/test_search.py,SearchTests,test_starts_current_then_nearby_unlocked_stages,32,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_recent_reliable_cache_and_unreliable_results_are_skipped,41,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_expired_cache_can_be_retested,47,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_other_difficulties_are_explored,51,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_simulation_follows_promising_region_with_a_strict_budget,59,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_no_implicit_unlock_or_unknown_target,76,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_one_recent_historical_completion_three_gold_below_reference_skips_stage,82,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_stale_candidate_or_reference_cannot_eliminate_candidate,93,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_reference_outside_confirmed_catalog_cannot_eliminate_candidate,101,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_disabled_rule_or_absent_reliable_reference_keeps_normal_exploration,107,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_history_skip_does_not_consume_budget_for_new_measurements,117,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_search.py,SearchTests,test_threshold_validation_matches_profitability_policy,126,manter,Planejamento com catálogo/histórico conhecidos; não comprova disponibilidade visual.
+tests/test_stop_file.py,StopFileTests,test_immediate_stop_before_worker_initialization_is_preserved,9,manter,Arquivo e thread reais; não é teste da tecla física ESC.
+tests/test_stop_file.py,StopFileTests,test_background_signal_is_sticky_and_does_not_stop_next_session,20,manter,Arquivo e thread reais; não é teste da tecla física ESC.
+tests/test_storage.py,StoreTests,test_unique_event_ids_preserve_identical_battle_occurrences,17,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StoreTests,test_database_survives_reopen_and_filters_utc_instants,24,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StoreTests,test_interruption_has_no_unconfirmed_reward,37,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StoreTests,test_bad_data_does_not_enter_profitability,42,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StatisticsTests,test_yield_uses_total_reward_over_total_time_including_failures,51,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StatisticsTests,test_interruptions_cannot_satisfy_completed_sample_minimum,62,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StatisticsTests,test_restart_overhead_counts_each_completed_battle_without_changing_raw_data,66,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StatisticsTests,test_interruptions_only_receive_no_restart_overhead,87,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StatisticsTests,test_duplicate_event_does_not_double_count_restart,95,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StatisticsTests,test_zero_restart_preserves_legacy_calculation_and_invalid_values_raise,100,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StatisticsTests,test_duplicates_of_an_event_id_do_not_change_statistics,108,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_storage.py,StatisticsTests,test_simulated_farming_ranks_real_yield_and_rejects_unreliable_stage,111,manter,SQLite e estatísticas reais; não simula corrupção/queda de energia durante gravação.
+tests/test_vision.py,RecognitionContractsTests,test_preflight_checks_regex_and_schema_without_optional_libraries,14,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,RecognitionContractsTests,test_rejects_ambiguous_text_target,21,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,RecognitionContractsTests,test_text_threshold_and_roi_forwarding,28,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,RecognitionContractsTests,test_roi_validation_and_pixels,36,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_multiscale_matching_and_constant_protection,64,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_preflight_rejects_missing_empty_and_corrupt_templates,76,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_two_identical_templates_are_ambiguous,83,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_resampling_alternatives_merge_only_same_location,94,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_menu_requires_three_horizontal_bars,119,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_ocr_keeps_duplicate_rows_offsets_and_red_defeats,131,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_ocr_timeout_is_reported,147,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_white_text_excludes_colored_and_dark_background,152,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_real_white_footer_reads_4_7_without_digit_repair,167,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_real_linewise_logs_preserve_all_five_exact_battles,177,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_real_linewise_logs_keep_loot_rows_between_battles,193,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."
+tests/test_vision.py,PixelRecognitionTests,test_linewise_preserves_duplicate_and_unreadable_rows,206,manter,"Contratos e pixels sintéticos/reais; manter positivos, negativos e ambiguidade."

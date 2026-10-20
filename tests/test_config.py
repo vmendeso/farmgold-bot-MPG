@@ -59,6 +59,48 @@ class EarlyStopConfigurationTests(unittest.TestCase):
                 with self.assertRaisesRegex(ConfigError, "measurement.battle_restart_seconds"):
                     self.load()
 
+    def test_fractional_and_boolean_collection_budgets_are_rejected(self):
+        for section, name in (("measurement", "battles_per_stage"), ("search", "max_stages"),
+                              ("search", "exploration_every")):
+            previous = self.config[section][name]
+            for value in (True, False, 1.5, 0, -1, "5"):
+                with self.subTest(field=name, value=value):
+                    self.config[section][name] = value
+                    with self.assertRaisesRegex(ConfigError, section + "." + name):
+                        self.load()
+            self.config[section][name] = previous
+
+    def test_nonfinite_or_nonpositive_time_limits_cannot_start_a_run(self):
+        for name in ("poll_interval", "battle_timeout", "stage_timeout", "max_log_gap"):
+            previous = self.config["measurement"][name]
+            for value in (True, 0, -1, float("inf"), float("nan")):
+                with self.subTest(field=name, value=value):
+                    self.config["measurement"][name] = value
+                    with self.assertRaisesRegex(ConfigError, "measurement." + name):
+                        self.load()
+            self.config["measurement"][name] = previous
+
+    def test_invalid_log_regions_and_order_are_rejected_before_capture(self):
+        for roi in ([0, 0, 0, .3], [-.1, 0, .5, .3], [.9, 0, .5, .3],
+                    [0, .9, .5, .3], [0, 0, float("nan"), .3], [False, 0, 1, .3], [0, 0, 1]):
+            with self.subTest(roi=roi):
+                self.config["measurement"]["logs_roi"] = roi
+                with self.assertRaisesRegex(ConfigError, "logs_roi"):
+                    self.load()
+        self.config["measurement"]["logs_roi"] = [0, 0, 1, .3]
+        self.config["measurement"]["log_order"] = "bottom"
+        with self.assertRaisesRegex(ConfigError, "log_order"):
+            self.load()
+
+    def test_zero_start_delay_is_valid_but_negative_and_nonfinite_delays_are_not(self):
+        self.config["safety"]["start_delay"] = 0
+        self.assertEqual(self.load()["safety"]["start_delay"], 0)
+        for value in (-1, True, float("inf"), float("nan")):
+            with self.subTest(value=value):
+                self.config["safety"]["start_delay"] = value
+                with self.assertRaisesRegex(ConfigError, "start_delay"):
+                    self.load()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -194,13 +194,19 @@ class WindowManager:
         self.assert_foreground()
         try:
             import numpy as np
+            from mss.exception import ScreenShotError
             if self._capture is None:
                 from mss import mss
                 self._capture = mss()
         except ImportError as exc:
             raise WindowError("Instale as dependencias de requirements.txt para capturar a tela.") from exc
         captured_at = time.monotonic()
-        shot = self._capture.grab({"left": rect.left, "top": rect.top, "width": rect.width, "height": rect.height})
+        try:
+            shot = self._capture.grab({"left": rect.left, "top": rect.top, "width": rect.width, "height": rect.height})
+        except ScreenShotError as exc:
+            # A temporarily unavailable desktop is an operational capture
+            # failure: loop may defer the cycle, but must not reuse old pixels.
+            raise WindowError("Captura da tela indisponível; nenhuma imagem nova foi obtida.") from exc
         pixels = np.asarray(shot)[:, :, :3].copy()  # MSS BGRA -> OpenCV BGR.
         if self.current() != (hwnd, rect):
             raise InputSafetyError("A janela mudou durante a captura. Capture novamente.")

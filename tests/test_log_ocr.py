@@ -3,8 +3,11 @@ import importlib.util
 import os
 from pathlib import Path
 import shutil
+import tempfile
+import time
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from farmbot.models import ParsedBattle, UntimedDefeat
 from farmbot.results import parse_log_entry
@@ -265,3 +268,44 @@ class LogOCRTests(unittest.TestCase):
         self.assertEqual([(b.stage, b.duration, b.gold, b.exp) for b in battles],
                          [("2-6", 70.62, 1849, 5050), ("2-6", 71.44, 1849, 5050),
                           ("2-6", 69.48, 1849, 5050), ("2-6", 68.57, 1849, 5050)])
+
+    def test_real_row_shift_reaches_collector_database_and_restart_adjusted_rate(self):
+        import cv2
+        from farmbot.models import Stage
+        from farmbot.runner import Collector, recent_stats
+        from farmbot.storage import Store
+
+        self.real_vision()
+        target = Stage("4-6", "Pesadelo")
+        images = [cv2.imread(str(Path(__file__).parent / "fixtures" / name)) for name in (
+            "logs_4_6_before_row_shift.png", "logs_4_6_after_row_shift.png")]
+        self.assertTrue(all(image is not None for image in images))
+        # 41.45 appears in BOTH frames; the new occurrence must be persisted,
+        # while the five historical rows must not be credited on startup.
+        window = Mock()
+        window.capture.side_effect = [SimpleNamespace(image=image.copy())
+                                      for image in images for _ in range(2)]
+        navigator = Mock(current_stage=Mock(return_value=target))
+        now = [0.0]
+        stop = Mock()
+        stop.wait.side_effect = lambda seconds: now.__setitem__(0, now[0] + seconds)
+        with tempfile.TemporaryDirectory() as directory, Store(Path(directory) / "results.db") as store:
+            config = {"_base_dir": Path(directory), "navigation": {},
+                      "search": {"cache_hours": 6}, "output": {"artifacts": "artifacts"},
+                      "measurement": {"battles_per_stage": 1, "min_win_rate": .8,
+                                      "battle_restart_seconds": 5, "log_order": "oldest_first",
+                                      "max_log_gap": 120, "poll_interval": 1,
+                                      "battle_timeout": 180, "stage_timeout": 600,
+                                      "logs_roi": [0, 0, 1, 1]}}
+            clock = SimpleNamespace(monotonic=lambda: now[0], time_ns=time.time_ns)
+            with patch("farmbot.runner.time", clock):
+                completed = Collector(window, self.vision, navigator, stop, store, config).collect(target)
+            self.assertEqual(completed, 1)
+            records = store.records()
+            self.assertEqual([(r.stage, r.duration, r.gold, r.exp, r.outcome) for r in records],
+                             [("4-6", 41.45, 1600, 2790, "victory")])
+            ranking = recent_stats(store, config)
+            self.assertEqual(len(ranking), 1)
+            self.assertAlmostEqual(ranking[0].total_seconds, 46.45)
+            self.assertAlmostEqual(ranking[0].gold_per_minute, 1600 / 46.45 * 60)
+        self.assertEqual(window.capture.call_count, 4)

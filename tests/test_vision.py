@@ -91,6 +91,63 @@ class PixelRecognitionTests(unittest.TestCase):
         self.assertEqual(len(self.vision.locate_all(frame, target)), 2)
         self.assertIsNone(self.vision.locate(frame, target))
 
+    def test_resampling_alternatives_merge_only_same_location(self):
+        np, cv2 = self.np, self.cv2
+        template = np.random.default_rng(17).integers(0, 255, (32, 32), dtype=np.uint8)
+        cv2.imwrite(str(self.base / "icon.png"), template)
+        frame = np.zeros((120, 120), dtype=np.uint8)
+        frame[10:42, 10:42] = template
+        target = {"template": "icon.png", "scales": [1], "threshold": .999,
+                  "resampling": ["nearest", "linear"]}
+        self.vision.validate_target(target)
+        self.assertEqual(len(self.vision.locate_all(frame, target)), 1)
+        self.assertIsNotNone(self.vision.locate(frame, target))
+        frame[:] = 0
+        frame[10:34, 10:34] = cv2.resize(template, None, fx=.75, fy=.75, interpolation=cv2.INTER_NEAREST)
+        frame[70:94, 70:94] = cv2.resize(template, None, fx=.75, fy=.75, interpolation=cv2.INTER_LINEAR)
+        target["scales"] = [.75]
+        self.assertEqual(len(self.vision.locate_all(frame, target)), 2)
+        self.assertIsNone(self.vision.locate(frame, target))
+        for invalid in ([], None, {}, ["bad"], ["linear"] * 4):
+            with self.subTest(invalid=invalid):
+                bad = {**target, "resampling": invalid}
+                with self.assertRaises(VisionError):
+                    self.vision.validate_target(bad)
+                with self.assertRaises(VisionError):
+                    self.vision.locate(frame, bad)
+
+    def test_native_references_preserve_ambiguity_label_and_roi(self):
+        np, cv2 = self.np, self.cv2
+        old = np.random.default_rng(81).integers(0, 255, (20, 20), dtype=np.uint8)
+        native = np.random.default_rng(82).integers(0, 255, (24, 24), dtype=np.uint8)
+        cv2.imwrite(str(self.base / "old.png"), old)
+        cv2.imwrite(str(self.base / "native.png"), native)
+        target = {"template": "old.png", "scales": [1], "threshold": .999,
+                  "template_variants": [{"template": "native.png", "scales": [1]}]}
+        self.vision.validate_target(target)
+        frame = np.zeros((120, 120), dtype=np.uint8)
+        frame[10:34, 10:34] = native
+        self.assertEqual(self.vision.locate(frame, target).label, "old")
+        frame[70:90, 70:90] = old
+        self.assertIsNone(self.vision.locate(frame, target))
+        self.assertEqual(len(self.vision.locate_all(frame, target)), 2)
+        match = self.vision.locate(frame, {**target, "roi": [0, 0, .5, .5]})
+        self.assertEqual(match.center, (22, 22))
+        duplicate = {**target, "template_variants": [{"template": "old.png"}]}
+        self.assertEqual(len(self.vision.locate_all(frame, duplicate)), 1)
+
+    def test_native_reference_validation_does_not_allow_weaker_guards(self):
+        cv2, np = self.cv2, self.np
+        cv2.imwrite(str(self.base / "old.png"), np.random.default_rng(83).integers(0,255,(20,20),dtype=np.uint8))
+        base = {"template": "old.png", "scales": [1], "threshold": .99}
+        for variants in ([], None, {}, [{}], [{"template": "old.png", "threshold": .1}],
+                         [{"template": "old.png", "roi": [0,0,1,1]}],
+                         [{"template": "old.png", "template_variants": []}],
+                         [{"template": "old.png"}] * 4,
+                         [{"template": "missing.png"}], [{"template": "old.png", "scales": [0]}]):
+            with self.subTest(variants=variants), self.assertRaises(VisionError):
+                self.vision.validate_target({**base, "template_variants": variants})
+
     def test_menu_requires_three_horizontal_bars(self):
         np, cv2 = self.np, self.cv2
         image = np.zeros((400, 1000, 3), dtype=np.uint8)
@@ -123,6 +180,18 @@ class PixelRecognitionTests(unittest.TestCase):
         engine = types.SimpleNamespace(Output=types.SimpleNamespace(DICT="dict"), image_to_data=Mock(side_effect=RuntimeError("Tesseract process timeout")))
         with patch.object(self.vision, "_ocr", return_value=engine), self.assertRaises(VisionError):
             self.vision.read_lines(self.np.zeros((20, 50, 3), dtype=self.np.uint8))
+
+    def test_shared_deadline_caps_ocr_timeout_and_prevents_expired_work(self):
+        engine = types.SimpleNamespace(Output=types.SimpleNamespace(DICT="dict"),
+                                       image_to_data=Mock(return_value={"text": []}))
+        image = self.np.zeros((20, 50, 3), dtype=self.np.uint8)
+        with patch.object(self.vision, "_ocr", return_value=engine), patch("farmbot.vision.time.monotonic", return_value=10):
+            self.vision.read_lines(image, deadline=12)
+            self.assertEqual(engine.image_to_data.call_args.kwargs["timeout"], 2)
+            engine.image_to_data.reset_mock()
+            with self.assertRaises(VisionError):
+                self.vision.read_lines(image, deadline=10)
+            engine.image_to_data.assert_not_called()
 
     def test_white_text_excludes_colored_and_dark_background(self):
         np = self.np

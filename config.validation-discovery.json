@@ -1,0 +1,766 @@
+{
+  "dry_run": false,
+  "auto_switch_best": true,
+  "window": {
+    "exact_title": "MyPartyIsGrinding",
+    "title_regex": "(?i)^My\\s*Party\\s*Is\\s*Grinding(?:\\s.*)?$",
+    "max_frame_age_seconds": 8.0
+  },
+  "safety": {
+    "emergency_key": "esc",
+    "start_delay": 10
+  },
+  "vision": {
+    "tesseract_cmd": "C:/Users/Vitor/Documents/trabalho/llm-bot/.tools/tesseract/tesseract.exe",
+    "language": "por+eng",
+    "min_confidence": 0,
+    "ocr_scale": 2,
+    "ocr_timeout": 4,
+    "text_psm": 6,
+    "logs_psm": 6,
+    "green_logs": false,
+    "logs_linewise": true,
+    "logs_line_psm": 7,
+    "logs_ocr_timeout": 6
+  },
+  "measurement": {
+    "battles_per_stage": 5,
+    "battle_restart_seconds": 5,
+    "poll_interval": 0.5,
+    "battle_timeout": 180.0,
+    "stage_timeout": 1200.0,
+    "max_log_gap": 120.0,
+    "max_ocr_failures": 20,
+    "min_win_rate": 0.8,
+    "log_order": "oldest_first",
+    "logs_roi": [
+      0.3875,
+      0.390625,
+      0.225,
+      0.053125
+    ],
+    "logs_anchor": {
+      "target": {
+        "template": "templates/menu.png",
+        "threshold": 0.9,
+        "scales": [
+          0.75,
+          1
+        ]
+      },
+      "reference_width": 52,
+      "offset": [
+        -589,
+        -329,
+        576,
+        136
+      ]
+    }
+  },
+  "search": {
+    "max_stages": 12,
+    "cache_hours": 6.0,
+    "early_stop_gold_per_minute": 3,
+    "exploration_every": 3
+  },
+  "output": {
+    "database": "artifacts/fix-act2-20261019/live/measurements.sqlite3",
+    "ranking": "artifacts/fix-act2-20261019/live/ranking.csv",
+    "catalog": "artifacts/fix-act2-20261019/live/catalog.json",
+    "artifacts": "artifacts/fix-act2-20261019/live",
+    "log": "artifacts/fix-act2-20261019/live/farmbot.log"
+  },
+  "navigation": {
+    "mode": "icon_map",
+    "calibrated": true,
+    "timeout": 10,
+    "poll_interval": 0.25,
+    "retries": 2,
+    "difficulty_names": [
+      "Normal",
+      "Difícil",
+      "Pesadelo",
+      "Inferno",
+      "Averno"
+    ],
+    "anchor_width": 52,
+    "hover_delay": 0.3,
+    "max_nodes": 12,
+    "menu": {
+      "template": "templates/menu.png",
+      "threshold": 0.9,
+      "scales": [
+        0.75,
+        1
+      ]
+    },
+    "world_ready": {
+      "template": "templates/world_ready.png",
+      "threshold": 0.9,
+      "scales": [
+        0.75,
+        1
+      ]
+    },
+    "world_tab": {
+      "template": "templates/world_tab.png",
+      "threshold": 0.9,
+      "scales": [
+        0.75,
+        1
+      ]
+    },
+    "close_world": {
+      "template": "templates/close_world.png",
+      "threshold": 0.9,
+      "scales": [
+        0.75,
+        1
+      ]
+    },
+    "node_gold": {
+      "template": "templates/node_gold.png",
+      "threshold": 0.8,
+      "scales": [
+        0.74,
+        0.75,
+        1
+      ],
+      "resampling": "linear"
+    },
+    "battle_hover_offset": [
+      -310,
+      -75,
+      24,
+      24
+    ],
+    "current_stage_offset": [
+      -570,
+      21,
+      560,
+      31
+    ],
+    "world_offset": [
+      -800,
+      100,
+      1000,
+      800
+    ],
+    "world_tab_offset": [
+      -800,
+      45,
+      1000,
+      90
+    ],
+    "nodes_offset": [
+      -740,
+      315,
+      850,
+      540
+    ],
+    "tooltip_offset": [
+      -850,
+      35,
+      1150,
+      900
+    ],
+    "label_confidence": 0.25,
+    "label_word_confidence": 0.25,
+    "pages": [
+      {
+        "name": "ato4_nightmare",
+        "act": 4,
+        "difficulty": "Pesadelo",
+        "enter": [
+          {
+            "click": {
+              "template": "templates/difficulty_arrow.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ]
+            },
+            "expect": {
+              "template": "templates/normal_option.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -750,
+                300,
+                240,
+                390
+              ],
+              "resampling": "linear"
+            },
+            "skip_if": {
+              "template": "templates/nightmare_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ],
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
+            }
+          },
+          {
+            "click": {
+              "template": "templates/nightmare_option.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -750,
+                300,
+                240,
+                390
+              ]
+            },
+            "expect": {
+              "template": "templates/nightmare_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ],
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
+            },
+            "skip_if": {
+              "template": "templates/nightmare_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ],
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
+            }
+          },
+          {
+            "click": {
+              "template": "templates/act4_label.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -35,
+                220,
+                165,
+                85
+              ],
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
+            },
+            "expect": {
+              "template": "templates/act4_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.74,
+                0.75,
+                1
+              ],
+              "offset": [
+                -35,
+                220,
+                165,
+                85
+              ],
+              "resampling": "linear"
+            },
+            "skip_if": {
+              "template": "templates/act4_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.74,
+                0.75,
+                1
+              ],
+              "offset": [
+                -35,
+                220,
+                165,
+                85
+              ],
+              "resampling": "linear"
+            }
+          }
+        ],
+        "ready": [
+          {
+            "template": "templates/act4_selected.png",
+            "threshold": 0.9,
+            "scales": [
+              0.74,
+              0.75,
+              1
+            ],
+            "offset": [
+              -35,
+              220,
+              165,
+              85
+            ],
+            "resampling": "linear"
+          },
+          {
+            "template": "templates/nightmare_selected.png",
+            "threshold": 0.9,
+            "scales": [
+              0.75,
+              1
+            ],
+            "offset": [
+              -745,
+              225,
+              225,
+              80
+            ],
+            "resampling": [
+              "nearest",
+              "linear"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "ato1_averno",
+        "act": 1,
+        "difficulty": "Averno",
+        "enter": [
+          {
+            "click": {
+              "template": "templates/difficulty_arrow.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ]
+            },
+            "expect": {
+              "template": "templates/normal_option.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -750,
+                300,
+                240,
+                390
+              ],
+              "resampling": "linear"
+            },
+            "skip_if": {
+              "template": "templates/averno_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ],
+              "resampling": [
+                "default",
+                "linear"
+              ]
+            }
+          },
+          {
+            "click": {
+              "template": "templates/averno_option.png",
+              "threshold": 0.9,
+              "scales": [
+                0.74,
+                0.75,
+                1
+              ],
+              "offset": [
+                -750,
+                300,
+                240,
+                390
+              ],
+              "resampling": [
+                "default",
+                "nearest"
+              ]
+            },
+            "expect": {
+              "template": "templates/averno_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ],
+              "resampling": [
+                "default",
+                "linear"
+              ]
+            },
+            "skip_if": {
+              "template": "templates/averno_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ],
+              "resampling": [
+                "default",
+                "linear"
+              ]
+            }
+          },
+          {
+            "click": {
+              "template": "templates/act1_label.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -485,
+                220,
+                150,
+                85
+              ],
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
+            },
+            "expect": {
+              "template": "templates/act1_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -485,
+                220,
+                150,
+                85
+              ]
+            },
+            "skip_if": {
+              "template": "templates/act1_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -485,
+                220,
+                150,
+                85
+              ]
+            }
+          }
+        ],
+        "ready": [
+          {
+            "template": "templates/act1_selected.png",
+            "threshold": 0.9,
+            "scales": [
+              0.75,
+              1
+            ],
+            "offset": [
+              -485,
+              220,
+              150,
+              85
+            ]
+          },
+          {
+            "template": "templates/averno_selected.png",
+            "threshold": 0.9,
+            "scales": [
+              0.75,
+              1
+            ],
+            "offset": [
+              -745,
+              225,
+              225,
+              80
+            ],
+            "resampling": [
+              "default",
+              "linear"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "ato2_inferno",
+        "act": 2,
+        "difficulty": "Inferno",
+        "enter": [
+          {
+            "click": {
+              "template": "templates/difficulty_arrow.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ]
+            },
+            "expect": {
+              "template": "templates/normal_option.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -750,
+                300,
+                240,
+                390
+              ],
+              "resampling": "linear"
+            },
+            "skip_if": {
+              "template": "templates/inferno_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                1,
+                1.3333333333333333
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ]
+            }
+          },
+          {
+            "click": {
+              "template": "templates/inferno_option.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -750,
+                300,
+                240,
+                390
+              ]
+            },
+            "expect": {
+              "template": "templates/inferno_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                1,
+                1.3333333333333333
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ]
+            },
+            "skip_if": {
+              "template": "templates/inferno_selected.png",
+              "threshold": 0.9,
+              "scales": [
+                1,
+                1.3333333333333333
+              ],
+              "offset": [
+                -745,
+                225,
+                225,
+                80
+              ]
+            }
+          },
+          {
+            "click": {
+              "template": "templates/act2_label.png",
+              "threshold": 0.9,
+              "scales": [
+                0.75,
+                1
+              ],
+              "offset": [
+                -335,
+                220,
+                165,
+                85
+              ],
+              "resampling": [
+                "nearest",
+                "linear"
+              ]
+            },
+            "expect": {
+              "template": "templates/act2_selected_body.png",
+              "threshold": 0.9,
+              "scales": [
+                1,
+                1.3333333333333333
+              ],
+              "offset": [
+                -335,
+                220,
+                165,
+                85
+              ]
+            },
+            "skip_if": {
+              "template": "templates/act2_selected_body.png",
+              "threshold": 0.9,
+              "scales": [
+                1,
+                1.3333333333333333
+              ],
+              "offset": [
+                -335,
+                220,
+                165,
+                85
+              ]
+            }
+          }
+        ],
+        "ready": [
+          {
+            "template": "templates/act2_selected_body.png",
+            "threshold": 0.9,
+            "scales": [
+              1,
+              1.3333333333333333
+            ],
+            "offset": [
+              -335,
+              220,
+              165,
+              85
+            ]
+          },
+          {
+            "template": "templates/inferno_selected.png",
+            "threshold": 0.9,
+            "scales": [
+              1,
+              1.3333333333333333
+            ],
+            "offset": [
+              -745,
+              225,
+              225,
+              80
+            ]
+          }
+        ]
+      }
+    ],
+    "world_header_anchor": [
+      -363,
+      151
+    ],
+    "panel_search_offset": [
+      -1100,
+      -1100,
+      1600,
+      2100
+    ],
+    "world_footer": {
+      "template": "templates/world_footer.png",
+      "threshold": 0.9,
+      "scales": [
+        1,
+        1.3333333333333333
+      ]
+    },
+    "world_footer_anchor": [
+      -466.6666666666667,
+      844.0
+    ]
+  },
+  "loop": {
+    "interval_minutes": 5.0,
+    "max_stages": 1
+  },
+  "ui": {
+    "focus_on_start": true
+  }
+}
