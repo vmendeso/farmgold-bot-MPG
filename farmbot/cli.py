@@ -195,6 +195,9 @@ def _check_config(config: dict, vision) -> int:
         from .map_navigation import MapNavigator as Navigator
     from .safety import StopController
     problems = []
+    if vision.remote_ocr.config['enabled']:
+        print('Groq: ' + ('chave configurada; sem chamada à API nesta verificação' if vision.remote_ocr.available
+                         else 'GROQ_API_KEY ausente; somente OCR local até configurar a chave'))
     try:
         ocr = vision._ocr()
         print(f"Tesseract: {ocr.get_tesseract_version()}")

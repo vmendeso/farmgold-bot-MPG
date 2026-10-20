@@ -63,6 +63,11 @@ def load_config(path: str | Path) -> dict:
             or roi[0] + roi[2] > 1.001 or roi[1] + roi[3] > 1.001):
         raise ConfigError("measurement.logs_roi deve ser [x,y,largura,altura] proporcional à janela")
     config["_base_dir"] = path.parent
+    from .groq_ocr import settings
+    try:
+        settings(config['vision'].get('groq'))
+    except ValueError as exc:
+        raise ConfigError(str(exc)) from exc
     config["_path"] = path
     return config
 

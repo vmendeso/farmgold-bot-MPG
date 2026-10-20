@@ -156,3 +156,7 @@ Veja [como melhorar e validar o OCR](docs/ocr-quality.md). A suíte passou com
 ### Interface em 100% — calibração de 19/10 à noite
 
 O menu com 52 pixels de largura, a legenda da batalha e as cinco linhas inferiores do histórico foram conferidos na escala de 100%. As referências nativas de Inferno selecionado e Ato 2 selecionado complementam as referências reduzidas, mantendo o limiar de 0,9 e a rejeição de alvos ambíguos. Veja [a calibração e os cenários de regressão](docs/calibration-100-percent.md).
+
+### OCR híbrido com Groq
+
+A integração opcional consulta a Groq quando o OCR local não confirma o histórico ou a legenda. Sem `GROQ_API_KEY`, o bot continua localmente. Veja [como configurar a chave, limitar chamadas e comparar as capturas](docs/groq-ocr.md). O teste remoto depende da configuração da sua chave; os testes automatizados simulam a API e não usam créditos.
