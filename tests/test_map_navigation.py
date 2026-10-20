@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 import tempfile
+import time
 from itertools import cycle
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -37,11 +38,17 @@ def configuration():
 
 
 class Stop:
+    def __init__(self):
+        self.now = 0.0
+
     def check(self):
         pass
 
     def wait(self, seconds):
-        pass
+        self.now += seconds
+
+    def monotonic(self):
+        return self.now
 
 
 class Window:
@@ -124,6 +131,13 @@ class Inputs:
 
 
 class NavigationFake(MapNavigator):
+    def _read_stage_from_frame(self, frame, menu, *, deadline=None):
+        # Control-flow tests supply a stage reading, not simulated image
+        # preprocessing. Consensus itself is tested with four readers below.
+        if self.label_vision is self.vision:
+            return self._parse_stage_lines(self.vision.read_lines(frame.image, mode="text"))[0]
+        return super()._read_stage_from_frame(frame, menu, deadline=deadline)
+
     @staticmethod
     def _golden(image, match):
         return True
@@ -140,6 +154,10 @@ class MapNavigationTests(unittest.TestCase):
         self.inputs = Inputs(self.window)
         self.config = configuration()
         self.nav = NavigationFake(self.window, self.vision, self.inputs, Stop(), self.config)
+        clock = patch("farmbot.map_navigation.time", SimpleNamespace(
+            monotonic=self.nav.stop.monotonic, time_ns=time.time_ns))
+        clock.start()
+        self.addCleanup(clock.stop)
 
     def test_missing_world_anchor_retries_fresh_frames_without_clicks(self):
         self.nav._nodes = Mock(side_effect=[WorldAnchorUnavailable("hidden"), ["node"]])
@@ -554,92 +572,96 @@ class MapNavigationTests(unittest.TestCase):
         self.assertTrue(nav.label_edge_vision.config["white_text"])
         self.assertEqual(nav.label_edge_vision.config["white_text_value_min"], 150)
         self.assertEqual(nav.label_edge_vision.config["ocr_scale"], 2)
+        self.assertEqual(nav.label_edge_confirm_vision.config["ocr_scale"], 3)
 
-    def test_edge_fallback_requires_complete_reading_and_temporal_confirmation(self):
-        line = lambda text: [OCRLine(text, .95, (200, 100, 400, 40))]
-        self.nav.label_vision = Mock()
-        self.nav.label_vision.read_lines.return_value = line("|-1 Pesadelo")
-        self.nav.label_fallback_vision = Mock()
-        self.nav.label_fallback_vision.read_lines.return_value = line("|-1 Pesadelo")
-        self.nav.label_edge_vision = Mock()
-        self.nav.label_edge_vision.read_lines.return_value = line("1-1 Pesadelo")
-        self.assertEqual(self.nav.current_stage(), Stage("1-1", "Pesadelo"))
+    def label_readers(self, texts):
+        readers = [Mock() for _ in range(4)]
+        for reader, text in zip(readers, texts):
+            reader.read_lines.return_value = [OCRLine(text, .95, (200, 100, 400, 40))]
+        (self.nav.label_vision, self.nav.label_fallback_vision,
+         self.nav.label_edge_vision, self.nav.label_edge_confirm_vision) = readers
+        return readers
+
+    def test_label_consensus_requires_two_matching_variants_and_two_frames(self):
+        readers = self.label_readers(['4-58 Pesadelo', '4-8 Pesadelo', '4-8 Pesadelo', '4-B Pesadelo'])
+        self.assertEqual(self.nav.current_stage(), Stage('4-8', 'Pesadelo'))
         self.assertEqual(self.window.captures, 3)
-        readers = [self.nav.label_vision, self.nav.label_fallback_vision, self.nav.label_edge_vision]
-        self.assertTrue(all(reader.read_lines.call_count == 2 for reader in readers))
-        for calls in zip(*(reader.read_lines.call_args_list for reader in readers)):
-            self.assertIs(calls[0].args[0], calls[1].args[0])
-            self.assertIs(calls[0].args[0], calls[2].args[0])
+        self.assertTrue(all(r.read_lines.call_count == 2 for r in readers))
+        for calls in zip(*(r.read_lines.call_args_list for r in readers)):
+            self.assertEqual(len({id(c.args[0]) for c in calls}), 1)
+            self.assertEqual(len({c.kwargs['deadline'] for c in calls}), 1)
         self.assertEqual(self.inputs.clicks, [])
 
-    def test_edge_fallback_never_overrides_valid_or_ambiguous_prior_readings(self):
+    def test_label_one_valid_variant_cannot_confirm_a_stage(self):
+        self.label_readers(['4-8 Pesadelo', '4-B Pesadelo', '4-B Pesadelo', ''])
         frame, menu = self.nav._capture_menu()
-        self.nav.label_vision = Mock()
-        self.nav.label_fallback_vision = Mock()
-        self.nav.label_edge_vision = Mock()
-        line = lambda text: [OCRLine(text, .95, (200, 100, 400, 40))]
-        for position in (0, 1):
-            for text, expected in (("4-8 Pesadelo", Stage("4-8", "Pesadelo")),
-                                   ("4-8 4-9 Pesadelo", None),
-                                   ("4-8 Pesadelo Normal", None)):
-                with self.subTest(position=position, text=text):
-                    self.nav.label_vision.read_lines.return_value = line(text if position == 0 else "4-B Pesadelo")
-                    self.nav.label_fallback_vision.read_lines.return_value = line(text)
-                    self.assertEqual(self.nav._read_stage_from_frame(frame, menu), expected)
-                    self.nav.label_edge_vision.read_lines.assert_not_called()
+        self.assertIsNone(self.nav._read_stage_from_frame(frame, menu))
 
-    def test_edge_fallback_never_combines_partial_fields_or_repairs_characters(self):
+    def test_reported_2_58_misread_is_outvoted_by_complete_2_8_inferno_reads(self):
+        self.nav.config["difficulty_names"].append("Inferno")
+        self.label_readers(["2-58 Inferno", "2-8 Inferno", "2-8 Inferno", "2-B Inferno"])
         frame, menu = self.nav._capture_menu()
-        self.nav.label_vision = Mock()
-        self.nav.label_fallback_vision = Mock()
-        self.nav.label_edge_vision = Mock()
-        for texts in (("4-8", "Pesadelo", "Normal"),
-                      ("|-1 Pesadelo", "|-1 Pesadelo", "|-1 Pesadelo"),
-                      ("4-8", "4-B Normal", "4-8 Pesadelo Normal"),
-                      ("4-B Pesadelo", "4-B Pesadelo", "4-8 4-9 Pesadelo")):
-            with self.subTest(texts=texts):
-                for reader, text in zip((self.nav.label_vision, self.nav.label_fallback_vision,
-                                        self.nav.label_edge_vision), texts):
-                    reader.read_lines.return_value = [OCRLine(text, .95, (200, 100, 400, 40))]
-                self.assertIsNone(self.nav._read_stage_from_frame(frame, menu))
+        self.assertEqual(self.nav._read_stage_from_frame(frame, menu), Stage("2-8", "Inferno"))
 
-    def test_label_fallback_reads_same_frame_and_keeps_temporal_confirmation(self):
-        line = lambda text: [OCRLine(text, 0.95, (200, 100, 400, 40))]
-        self.nav.label_vision = Mock()
-        self.nav.label_vision.read_lines.return_value = line("4-B Pesadelo")
-        self.nav.label_fallback_vision = Mock()
-        self.nav.label_fallback_vision.read_lines.return_value = line("4-8 Pesadelo")
-        self.assertEqual(self.nav.current_stage(), Stage("4-8", "Pesadelo"))
-        self.assertEqual(self.window.captures, 3)
-        self.assertEqual(self.nav.label_vision.read_lines.call_count, 2)
-        self.assertEqual(self.nav.label_fallback_vision.read_lines.call_count, 2)
-        for first, second in zip(self.nav.label_vision.read_lines.call_args_list,
-                                 self.nav.label_fallback_vision.read_lines.call_args_list):
-            self.assertIs(first.args[0], second.args[0])
-            self.assertEqual(first.kwargs, second.kwargs)
-        self.assertEqual(self.inputs.clicks, [])
-
-    def test_label_fallback_does_not_replace_valid_or_ambiguous_readings(self):
-        self.nav.label_fallback_vision = Mock()
+    def test_stop_between_variants_prevents_further_ocr(self):
+        from farmbot.safety import StopRequested
+        readers = self.label_readers(["4-8 Pesadelo"] * 4)
         frame, menu = self.nav._capture_menu()
-        self.assertEqual(self.nav._read_stage_from_frame(frame, menu), Stage("4-8", "Pesadelo"))
-        self.nav.label_fallback_vision.read_lines.assert_not_called()
-        self.nav.label_vision = Mock()
-        for text in ("4-8 4-9 Pesadelo", "4-8 Pesadelo Normal"):
-            with self.subTest(text=text):
-                self.nav.label_vision.read_lines.return_value = [OCRLine(text, 0.95, (200, 100, 400, 40))]
-                self.assertIsNone(self.nav._read_stage_from_frame(frame, menu))
-                self.nav.label_fallback_vision.read_lines.assert_not_called()
+        self.nav.stop.check = Mock(side_effect=[None, StopRequested("ESC")])
+        with self.assertRaises(StopRequested):
+            self.nav._read_stage_from_frame(frame, menu)
+        readers[0].read_lines.assert_called_once()
+        for reader in readers[1:]:
+            reader.read_lines.assert_not_called()
 
-    def test_label_fallback_never_combines_partial_readings_or_repairs_characters(self):
-        self.nav.label_vision = Mock()
-        self.nav.label_fallback_vision = Mock()
+    def test_label_consensus_recovers_thin_digit_from_two_edge_masks(self):
+        self.label_readers(['|-1 Pesadelo', '|-1 Pesadelo', '1-1 Pesadelo', '1-1 Pesadelo'])
         frame, menu = self.nav._capture_menu()
-        for first, second in (("4-8", "Pesadelo"), ("4-B Pesadelo", "4-B Pesadelo")):
-            with self.subTest(first=first, second=second):
-                self.nav.label_vision.read_lines.return_value = [OCRLine(first, 0.95, (200, 100, 400, 40))]
-                self.nav.label_fallback_vision.read_lines.return_value = [OCRLine(second, 0.95, (200, 100, 400, 40))]
-                self.assertIsNone(self.nav._read_stage_from_frame(frame, menu))
+        self.assertEqual(self.nav._read_stage_from_frame(frame, menu), Stage('1-1', 'Pesadelo'))
+
+    def test_label_two_against_two_is_rejected_even_if_first_pair_agrees(self):
+        self.label_readers(['4-58 Pesadelo', '4-58 Pesadelo', '4-8 Pesadelo', '4-8 Pesadelo'])
+        frame, menu = self.nav._capture_menu()
+        self.assertIsNone(self.nav._read_stage_from_frame(frame, menu))
+
+    def test_label_majority_cannot_hide_multiple_ids_or_difficulties(self):
+        for ambiguous in ('4-8 4-9 Pesadelo', '4-8 Pesadelo Normal'):
+            for position in range(4):
+                with self.subTest(ambiguous=ambiguous, position=position):
+                    texts = ['4-8 Pesadelo'] * 4
+                    texts[position] = ambiguous
+                    self.label_readers(texts)
+                    frame, menu = self.nav._capture_menu()
+                    self.assertIsNone(self.nav._read_stage_from_frame(frame, menu))
+
+    def test_label_never_combines_partial_fields_or_repairs_characters(self):
+        for texts in (['4-8', 'Pesadelo', '4-8', 'Pesadelo'], ['4-B Pesadelo'] * 4):
+            self.label_readers(texts)
+            frame, menu = self.nav._capture_menu()
+            self.assertIsNone(self.nav._read_stage_from_frame(frame, menu))
+
+    def test_label_consensus_cannot_continue_after_shared_deadline(self):
+        readers = self.label_readers(['4-8 Pesadelo'] * 4)
+        now = [0.0]
+        def slow_read(*args, **kwargs):
+            now[0] = 1
+            return [OCRLine('4-8 Pesadelo', .95, (200, 100, 400, 40))]
+        readers[0].read_lines.side_effect = slow_read
+        frame, menu = self.nav._capture_menu()
+        with patch('farmbot.map_navigation.time.monotonic', side_effect=lambda: now[0]):
+            self.assertIsNone(self.nav._read_stage_from_frame(frame, menu, deadline=.5))
+        for reader in readers[1:]:
+            reader.read_lines.assert_not_called()
+
+    def test_label_diagnostics_retain_exact_frame_and_all_variant_readings(self):
+        self.label_readers(['4-58 Pesadelo', '4-8 Pesadelo', '4-8 Pesadelo', '4-B Pesadelo'])
+        frame, menu = self.nav._capture_menu()
+        self.nav._read_stage_from_frame(frame, menu)
+        evidence = self.nav.last_label_evidence
+        self.assertIs(evidence['frame'], frame)
+        self.assertEqual(evidence['selected'], '4-8|Pesadelo')
+        self.assertEqual([r['stage'] for r in evidence['reads']],
+                         ['4-58|Pesadelo', '4-8|Pesadelo', '4-8|Pesadelo', None])
 
     def test_missing_later_reference_preflight_prevents_any_input(self):
         self.config["pages"][0]["ready"][1] = target("missing-file")
@@ -857,15 +879,11 @@ class ObservedFooterTests(unittest.TestCase):
                          "min_confidence": .25}, Path("."))
         nav = MapNavigator(None, vision, None, Stop(), config)
         menu = Match(0, 0, 52, 52, 1.0, "menu")
-        edge_reader = nav.label_edge_vision
         for name in ("stage_1_1_footer_digit_one.png", "stage_1_1_footer_difficulty_effect.png",
                      "stage_1_1_footer_digit_effect.png", "stage_1_1_footer_low_brightness_noise.png"):
             with self.subTest(fixture=name):
                 image = cv2.imread(str(Path(__file__).parent / "fixtures" / name))
                 frame = SimpleNamespace(image=image)
-                nav.label_edge_vision = None
-                self.assertIsNone(nav._read_stage_from_frame(frame, menu))
-                nav.label_edge_vision = edge_reader
                 self.assertEqual(nav._read_stage_from_frame(frame, menu), Stage("1-1", "Averno"))
 
     def test_reduced_footer_recovers_digit_eight_without_replacing_letters(self):
@@ -886,7 +904,8 @@ class ObservedFooterTests(unittest.TestCase):
         nav = MapNavigator(None, vision, None, Stop(), config)
         menu = Match(0, 0, 52, 52, 1.0, "menu")
         for name in ("stage_2_8_footer_letter_b.png", "stage_2_8_footer_primary_only.png",
-                     "stage_2_8_footer_effect.png"):
+                     "stage_2_8_footer_effect.png", "stage_2_8_after_false_258.png",
+                     "stage_2_8_after_false_258_next.png"):
             with self.subTest(fixture=name):
                 image = cv2.imread(str(Path(__file__).parent / "fixtures" / name))
                 self.assertEqual(nav._read_stage_from_frame(SimpleNamespace(image=image), menu),

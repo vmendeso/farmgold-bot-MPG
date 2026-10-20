@@ -176,6 +176,28 @@ class StageDefeated(NavigationError):
         super().__init__(f"{description} no log: {raw}; medição encerrada")
 
 
+def save_stage_diagnostic(navigator, config, target):
+    """Save the actual OCR label frame, never a later screenshot of animation."""
+    evidence = getattr(navigator, "last_label_evidence", None)
+    if not isinstance(evidence, dict) or evidence.get("frame") is None:
+        return None
+    try:
+        from .desktop import save_frame
+        from .vision import _roi_box
+        image = evidence["frame"].image
+        x, y, w, h = _roi_box(image, evidence["roi"])
+        path = output_path(config, "artifacts") / f"ocr-stage-{time.time_ns()}.png"
+        save_frame(SimpleNamespace(image=image[y:y+h, x:x+w]), path)
+        metadata = {key: evidence[key] for key in ("reads", "selected", "error") if key in evidence}
+        metadata.update(expected=target.key, crop_box=[x, y, w, h])
+        path.with_suffix(".json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
+        log.warning("Diagnóstico da legenda no instante da leitura: %s", path)
+        return path
+    except Exception as exc:
+        log.warning("Não foi possível salvar diagnóstico da legenda: %s", exc)
+        return None
+
+
 class Collector:
     def __init__(self, window, vision, navigator, stop, store: Store, config: dict, *,
                  comparison_catalog=None, stop_on_defeat: bool = False):
@@ -204,6 +226,7 @@ class Collector:
         completed = 0
         ocr_failures = 0
         ocr_diagnostic_attempted = False
+        label_diagnostic_attempted = False
         failure_reason = ""
         changed_stage = None
         changed_deadline = None
@@ -226,6 +249,10 @@ class Collector:
                     if visible is None:
                         raise VisionError("Legenda da fase não reconhecida")
                     if visible != target:
+                        if (self.comparison_catalog is not None
+                                and visible.difficulty == target.difficulty
+                                and visible not in self.comparison_catalog):
+                            raise VisionError(f"Legenda fora do catálogo confirmado: {visible.key}; nova leitura necessária")
                         # A defeat can make the game retreat before its log is
                         # read. Only a primed log and a confirmed lower stage in
                         # the same difficulty permit two fresh reads for proof.
@@ -254,6 +281,9 @@ class Collector:
                     if frame is not None and diagnostics.get("roi") is not None and not ocr_diagnostic_attempted:
                         ocr_diagnostic_attempted = True
                         save_log_diagnostic(frame, self.config, target, run_id, diagnostics)
+                    if frame is None and not label_diagnostic_attempted:
+                        label_diagnostic_attempted = True
+                        save_stage_diagnostic(self.navigator, self.config, target)
                     if ocr_failures >= limit:
                         raise
                     delay = cfg["poll_interval"]
@@ -338,6 +368,8 @@ class Collector:
             raise
         except BaseException as exc:
             failure_reason = f"{type(exc).__name__}: {exc}"
+            if isinstance(exc, NavigationError):
+                save_stage_diagnostic(self.navigator, self.config, target)
             raise
         finally:
             if failure_reason:

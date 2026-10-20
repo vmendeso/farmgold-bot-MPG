@@ -82,6 +82,15 @@ def _nms(matches: list[Match], overlap: float = 0.3) -> list[Match]:
     return kept
 
 
+def _resampling_modes(target: dict) -> tuple[str, ...]:
+    value = target.get("resampling", "default")
+    modes = [value] if isinstance(value, str) else value
+    if (not isinstance(modes, (list, tuple)) or not 1 <= len(modes) <= 3
+            or any(mode not in ("default", "linear", "nearest") for mode in modes)):
+        raise VisionError("Invalid template resampling")
+    return tuple(dict.fromkeys(modes))
+
+
 class Vision:
     def __init__(self, config: dict, base_dir: Path):
         self.config = config
@@ -105,9 +114,12 @@ class Vision:
             if "text" in target:
                 re.compile(str(target["text"]), re.IGNORECASE)
             if "template" in target:
+                if "template_variants" in target:
+                    for variant in self._template_targets(target):
+                        self.validate_target(variant)
+                    return
                 self._read_template(target)
-                if target.get("resampling", "default") not in ("default", "linear", "nearest"):
-                    raise ValueError("Invalid template resampling")
+                _resampling_modes(target)
                 scales = target.get("scales", [0.8, 0.9, 1.0, 1.1, 1.2])
                 if not isinstance(scales, (list, tuple)) or not 1 <= len(scales) <= 30:
                     raise ValueError("Configure de 1 a 30 escalas de template")
@@ -126,14 +138,14 @@ class Vision:
             pytesseract.pytesseract.tesseract_cmd = str(command)
         return pytesseract
 
-    def read_lines(self, image: Any, roi=None, mode: str = "text") -> list[OCRLine]:
+    def read_lines(self, image: Any, roi=None, mode: str = "text", *, deadline: float | None = None) -> list[OCRLine]:
         if mode not in ("text", "logs"):
             raise ValueError("Modo OCR deve ser text ou logs.")
         cv2, np = _dependencies()
         x, y, width, height = _roi_box(image, roi)
         crop = image[y:y + height, x:x + width]
         if mode == "logs" and self.config.get("logs_linewise", False):
-            return self._read_log_rows(crop, x, y)
+            return self._read_log_rows(crop, x, y, deadline=deadline)
         gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY) if crop.ndim == 3 else crop.copy()
         if mode == "text" and self.config.get("white_text", False) and crop.ndim == 3:
             # Footer labels sit over animated scenery. Isolate their neutral,
@@ -161,7 +173,12 @@ class Vision:
         if np.mean(binary) < 127:
             binary = cv2.bitwise_not(binary)
         psm = int(self.config.get(f"{mode}_psm", 6))
-        return self._read_processed(binary, x, y, scale, psm)
+        timeout = None
+        if deadline is not None:
+            timeout = min(float(self.config.get("ocr_timeout", 5.0)), deadline - time.monotonic())
+            if not math.isfinite(timeout) or timeout <= 0:
+                raise VisionError("Prazo compartilhado de OCR esgotado.")
+        return self._read_processed(binary, x, y, scale, psm, timeout=timeout)
 
     def _read_processed(self, pixels: Any, x: float, y: float, scale: float, psm: int, timeout: float | None = None) -> list[OCRLine]:
         if not 3 <= psm <= 13:
@@ -200,7 +217,7 @@ class Vision:
             result.append(OCRLine(" ".join(word[0] for word in words), sum(word[1] for word in words) / len(words), box))
         return sorted(result, key=lambda line: (line.box[1], line.box[0]))
 
-    def _read_log_rows(self, crop: Any, x: int, y: int) -> list[OCRLine]:
+    def _read_log_rows(self, crop: Any, x: int, y: int, *, deadline: float | None = None) -> list[OCRLine]:
         """Read each projected text row independently, preserving occurrences.
 
         Green victory rows retain their original antialiasing while yellow coin
@@ -230,7 +247,7 @@ class Vision:
                 spans.append((start, previous + 1))
         if len(spans) > 32:
             raise VisionError("Mais de 32 linhas no ROI de logs; ajuste a calibracao.")
-        deadline = time.monotonic() + timeout
+        deadline = min(deadline, time.monotonic() + timeout) if deadline is not None else time.monotonic() + timeout
         settings_key = json.dumps(self.config, sort_keys=True, default=str)
         result = []
         for top, bottom in spans:
@@ -371,7 +388,33 @@ class Vision:
             raise VisionError("Template uniforme nao identifica um elemento. Recorte o icone com detalhes.")
         return path, template
 
+    @staticmethod
+    def _template_targets(target: dict) -> list[dict]:
+        """Native captures share the original ROI, threshold and logical label."""
+        variants = target.get("template_variants")
+        if not isinstance(variants, list) or not 1 <= len(variants) <= 3:
+            raise VisionError("template_variants requires one to three native references")
+        base = {key: value for key, value in target.items() if key != "template_variants"}
+        base.setdefault("label", Path(base["template"]).stem)
+        result = [base]
+        for variant in variants:
+            if (not isinstance(variant, dict) or not isinstance(variant.get("template"), str)
+                    or not variant["template"] or set(variant) - {"template", "scales", "resampling"}):
+                raise VisionError("Native references allow only template, scales and resampling")
+            result.append({**base, **variant})
+        return result
+
     def _templates(self, image: Any, target: dict, threshold: float) -> list[Match]:
+        if "template_variants" in target:
+            return _nms([match for variant in self._template_targets(target)
+                         for match in self._templates(image, variant, threshold)])
+        modes = _resampling_modes(target)
+        if len(modes) > 1:
+            # Merge the same physical match across preparations, but preserve
+            # separate locations so strict recognition still rejects ambiguity.
+            return _nms([match for mode in modes for match in self._templates(
+                image, {**target, "resampling": mode}, threshold)])
+        target = {**target, "resampling": modes[0]}
         cv2, np = _dependencies()
         path, template = self._read_template(target)
         x, y, width, height = _roi_box(image, target.get("roi"))

@@ -1,5 +1,11 @@
 # Farmbot para My Party Is Grinding
 
+Validação completa de navegação em 19/10/2026, concluída às 10:23: corrigida a confirmação de **Ato 2 já selecionado**, que falhava e levava à procura desnecessária do botão não selecionado. A referência `act2_selected_body.png` preserva o texto e as bordas laterais azuis do estado selecionado; o clique usa `act2_label.png`. O limiar permanece em 0,90, com testes negativos para o ato não selecionado. A descoberta percorreu **Pesadelo, Averno e Inferno**, reconheceu **25 fases** (9, 9 e 7 respectivamente), fechou o Mundo e confirmou o retorno à batalha, encerrando com **código 0**. O tooltip de 2-3/Inferno foi excluído porque o OCR leu `[2 3]`, sem hífen; esse aviso não interrompeu a descoberta. Foram **401 testes aprovados**. Evidência: `artifacts/fix-act2-20261019/live-validation.json`. O teste utilizou `config.validation-discovery.json` e saídas separadas, sem alterar o catálogo principal. O processo de validação terminou.
+
+Validação ao vivo de 19/10/2026, concluída às 10:13: corrigidas a opção Averno, a confirmação de Averno selecionado e a referência do botão Ato 1, mantendo o limiar de 0,90 e a rejeição de alvos ambíguos. A tentativa final selecionou **Averno / Ato 1**, reconheceu **nove fases**, fechou o Mundo e confirmou o retorno à batalha, encerrando com **código 0 e sem avisos**. A suíte executada no clone passou com **400 testes**. O teste usou `config.validation-averno.json` e saídas separadas; não coletou batalhas nem substituiu o catálogo principal. Evidência: `artifacts/fix-averno-20261019/live-validation.json`. O teste terminou; para retomar o farm, execute o comando habitual com `config.json`.
+
+Correção de 19/10/2026: a confirmação de Pesadelo aceita preparações `nearest` e `linear` da referência, preservando o limiar de 0,90 e a rejeição de posições ambíguas. A captura da falha de 09:54 passa com confiança 0,938, e as capturas antigas continuam válidas. O clique em Ato 4 usa uma referência do texto do botão (`act4_label.png`), com confiança 0,961 nessa captura; a confirmação de ato selecionado permanece separada. Suíte: **398 testes aprovados**. Validação com capturas reais; a navegação ao vivo ainda não foi repetida após esta correção.
+
 Bot em Python para medir o rendimento de Gold no **My Party Is Grinding**, comparar fases e dificuldades e selecionar a melhor opção entre as fases medidas. O programa lê a interface com capturas de tela e OCR, registra as batalhas em SQLite e gera um ranking em CSV.
 
 ## Recursos
@@ -112,3 +118,41 @@ O resultado fica em `artifacts/demo/`. Para executar a suíte de testes:
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
+
+## Revisão da suíte em 19/10/2026
+
+Os 401 testes existentes foram revisados; a suíte agora contém 423 testes,
+incluindo rotas com capturas reais e integração de OCR, SQLite e Gold/min.
+Veja a [revisão e os cenários ainda pendentes](docs/test-review.md) e o
+[inventário individual dos testes](docs/test-inventory.csv).
+
+Para validar sem aceitar testes ignorados por falta de dependências:
+
+```powershell
+.\.venv\Scripts\python.exe -B -X utf8 scripts/check_tests.py
+```
+
+O relatório fica em `artifacts/test-review/results.json`. A suíte não interage
+com o jogo. Erros de captura do MSS agora permitem adiar a rodada do `loop`,
+sem reutilizar uma imagem antiga para decidir cliques.
+
+**Tela desligada:** o funcionamento com o monitor apagado não foi validado.
+O bot exige o jogo visível em primeiro plano e uma sessão ativa; minimizar,
+bloquear ou suspender não são modos suportados. Desligar apenas o monitor é
+diferente de suspender o computador, mas não há garantia de captura nesse estado.
+
+## Confirmação de legendas — 19/10, após erro 2-58
+
+A legenda agora exige consenso entre tratamentos de imagem e confirmação em
+dois frames. Durante a busca, uma fase da mesma dificuldade fora do catálogo
+confirmado provoca nova leitura com limite de tentativas, sem contabilizar
+batalhas nesse intervalo. Os recortes `artifacts/ocr-stage-*.png` e `.json`
+preservam os pixels e votos OCR do instante da rejeição.
+
+Veja [como melhorar e validar o OCR](docs/ocr-quality.md). A suíte passou com
+432 testes após esta alteração; o inventário anterior registra a revisão dos
+423 testes daquele momento. Reinicie o bot para carregar a nova implementação.
+
+### Interface em 100% — calibração de 19/10 à noite
+
+O menu com 52 pixels de largura, a legenda da batalha e as cinco linhas inferiores do histórico foram conferidos na escala de 100%. As referências nativas de Inferno selecionado e Ato 2 selecionado complementam as referências reduzidas, mantendo o limiar de 0,9 e a rejeição de alvos ambíguos. Veja [a calibração e os cenários de regressão](docs/calibration-100-percent.md).

@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from farmbot.models import BattleRecord, LogMarker, ParsedBattle, Stage, UntimedDefeat
-from farmbot.runner import Collector, StageDefeated, read_results, run_search, save_log_diagnostic
+from farmbot.runner import Collector, StageDefeated, read_results, run_search, save_log_diagnostic, save_stage_diagnostic
 from farmbot.storage import Store
 
 
@@ -263,14 +263,37 @@ class CollectorTests(unittest.TestCase):
         self.assertNotIsInstance(caught.exception, StageDefeated)
         self.assertEqual(self.window.capture.call_count, 4)
 
-    def test_retreat_to_unconfirmed_catalog_entry_is_not_recovered(self):
+    def test_unknown_catalog_entry_retries_without_crediting_logs_then_stops(self):
+        from farmbot.vision import VisionError
         baseline = [row(i) for i in range(5, 0, -1)]
         self.collector.comparison_catalog = [INITIAL]
-        self.navigator.current_stage.side_effect = [INITIAL, INITIAL, NEIGHBOR]
-        with self.assertRaises(RuntimeError) as caught:
+        self.config["measurement"].update(max_ocr_failures=3, battle_timeout=30)
+        self.navigator.current_stage.side_effect = [INITIAL, INITIAL, NEIGHBOR, NEIGHBOR, NEIGHBOR]
+        with self.assertRaises(VisionError) as caught:
             self.collect_snapshots([baseline, baseline])
         self.assertNotIsInstance(caught.exception, StageDefeated)
         self.assertEqual(self.window.capture.call_count, 2)
+        self.assertEqual(self.navigator.current_stage.call_count, 5)
+        self.assertEqual([r.outcome for r in self.store.records()], ["interrupted"])
+
+    def test_unknown_spurious_stage_recovers_without_counting_stale_or_fake_rows(self):
+        self.collector.comparison_catalog = [INITIAL, NEIGHBOR]
+        self.config["measurement"].update(battle_timeout=30)
+        baseline = [row(i) for i in range(5, 0, -1)]
+        updated = [row(6), row(6), *baseline[:3]]
+        self.navigator.current_stage.side_effect = [INITIAL, INITIAL, Stage("4-58", "Pesadelo"), INITIAL, INITIAL]
+        self.assertEqual(self.collect_snapshots([baseline, baseline, updated, updated]), 2)
+        self.assertEqual(self.window.capture.call_count, 4)
+        self.assertEqual([r.gold for r in self.store.records()], [6, 6])
+
+    def test_known_higher_stage_change_still_aborts_without_reward(self):
+        higher = Stage("4-9", "Pesadelo")
+        self.collector.comparison_catalog = [INITIAL, NEIGHBOR, higher]
+        self.navigator.current_stage.return_value = higher
+        with self.assertRaisesRegex(RuntimeError, "Fase/dificuldade"):
+            self.collect_snapshots([[row(999)]])
+        self.window.capture.assert_not_called()
+        self.assertEqual([r.outcome for r in self.store.records()], ["interrupted"])
 
     def test_retreat_proof_expires_when_ocr_keeps_failing(self):
         baseline = [row(i) for i in range(5, 0, -1)]
@@ -331,6 +354,7 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual([record.outcome for record in self.store.records()], ["interrupted"])
 
     def test_wrong_visible_difficulty_aborts_and_preserves_interruption(self):
+        self.collector.comparison_catalog = [INITIAL]
         self.navigator.current_stage.return_value = Stage("4-8", "Normal")
         with self.assertRaises(RuntimeError):
             self.collect_snapshots([[row(1)]])
@@ -631,6 +655,38 @@ class AnchoredResultReadTests(unittest.TestCase):
 
 
 class LogDiagnosticTests(unittest.TestCase):
+    def test_stage_diagnostic_saves_exact_label_crop_and_raw_votes_without_recapture(self):
+        import cv2
+        import numpy as np
+        image = np.arange(20 * 40 * 3, dtype=np.uint8).reshape((20, 40, 3))
+        navigator = Mock()
+        reads = [{"variant": "primary", "stage": "2-58|Inferno",
+                  "lines": [{"text": "2-58 Posto Avançado em Ruínas - Inferno", "confidence": .91}]}]
+        navigator.last_label_evidence = {"frame": SimpleNamespace(image=image),
+                                         "roi": [.25, .1, .5, .3], "reads": reads,
+                                         "selected": "2-58|Inferno"}
+        with tempfile.TemporaryDirectory() as directory:
+            path = save_stage_diagnostic(navigator, configuration(directory), Stage("2-8", "Inferno"))
+            self.assertIsNotNone(path)
+            actual = cv2.imdecode(np.frombuffer(path.read_bytes(), dtype=np.uint8), cv2.IMREAD_COLOR)
+            np.testing.assert_array_equal(actual, image[2:8, 10:30])
+            metadata = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
+            self.assertEqual(metadata["expected"], "2-8|Inferno")
+            self.assertEqual(metadata["reads"], reads)
+            self.assertEqual(metadata["selected"], "2-58|Inferno")
+        navigator.current_stage.assert_not_called()
+        navigator.window.capture.assert_not_called()
+
+    def test_absent_stage_evidence_or_failed_diagnostic_never_triggers_capture(self):
+        navigator = Mock(last_label_evidence=None)
+        with tempfile.TemporaryDirectory() as directory:
+            config = configuration(directory)
+            self.assertIsNone(save_stage_diagnostic(navigator, config, INITIAL))
+            navigator.last_label_evidence = {"frame": SimpleNamespace(image=None), "roi": [0, 0, 1, 1]}
+            self.assertIsNone(save_stage_diagnostic(navigator, config, INITIAL))
+            self.assertFalse((Path(directory) / "artifacts").exists())
+        navigator.window.capture.assert_not_called()
+
     def test_saved_png_contains_only_the_supplied_log_crop(self):
         import cv2
         import numpy as np
@@ -857,8 +913,10 @@ class SearchIntegrationTests(unittest.TestCase):
         self.config["auto_switch_best"] = True
 
         def fail_measurement(target):
-            add_measurements(self.store, target, 0, outcome="defeat")
-            return 2
+            # A real defeat raises StageDefeated in search mode and mandates
+            # retreat. Only an inconclusive collection may restore the start.
+            add_measurements(self.store, target, 0, outcome="interrupted")
+            return 0
 
         with patch("farmbot.runner.Collector") as collector:
             collector.return_value.collect.side_effect = fail_measurement
